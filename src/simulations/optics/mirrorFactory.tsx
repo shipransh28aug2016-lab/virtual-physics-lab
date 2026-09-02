@@ -149,9 +149,9 @@ export function makeMirrorStage(config: MirrorConfig) {
     const u = -uCm;
     const oX = xOf(g, u);
     const oY = yOf(g, hCm);
-    const iX = Number.isFinite(img.imageDistance) ? xOf(g, img.imageDistance) : null;
-    const iY = Number.isFinite(img.imageHeight) ? yOf(g, img.imageHeight) : null;
-    const fX = xOf(g, img.focalLength);
+    const iX = Number.isFinite(img.imageDistance) ? xOf(g, img.imageDistance * 100) : null;
+    const iY = Number.isFinite(img.imageHeight) ? yOf(g, img.imageHeight * 100) : null;
+    const fX = xOf(g, img.focalLength * 100);
     const cX = xOf(g, config.concave ? -rCm : rCm);
 
     const rays: BenchRay[] = [];
@@ -199,7 +199,7 @@ export function makeMirrorStage(config: MirrorConfig) {
         objectHeight={hCm}
         image={img}
         title={`${config.concave ? 'Concave' : 'Convex'} mirror · R = ${rCm.toFixed(1)} cm · f = ${(img.focalLength * 100).toFixed(1)} cm`}
-        subtitle={`u = ${uCm.toFixed(1)} cm → v = ${img.imageDistance.toFixed(2)} cm · m = ${img.magnification.toFixed(3)}`}
+        subtitle={`u = ${uCm.toFixed(1)} cm → v = ${(img.imageDistance * 100).toFixed(2)} cm · m = ${img.magnification.toFixed(3)}`}
         optic={
           <>
             <MirrorSvg
@@ -214,7 +214,7 @@ export function makeMirrorStage(config: MirrorConfig) {
               g={g}
               values={[
                 { x: fX, label: 'F' },
-                { x: xOf(g, 2 * img.focalLength), label: '2F' },
+                { x: xOf(g, 2 * img.focalLength * 100), label: '2F' },
                 ...(config.concave ? [{ x: cX, label: 'C', color: '#9d8cff' }] : [])
               ]}
             />
@@ -228,7 +228,7 @@ export function makeMirrorStage(config: MirrorConfig) {
           params={params}
           onChange={(key, value) => set(key, value)}
           x={g.originX}
-          y={g.axisY + 30}
+          y={g.axisY + 96}
           length={g.originX - xOf(g, -60)}
           mapping={{ toValue: (dx) => -dx / g.scale, invert: (u) => xOf(g, -u) }}
           label="Object distance u — drag along the bench"

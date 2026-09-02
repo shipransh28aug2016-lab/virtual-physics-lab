@@ -13,5 +13,5 @@ export const meta: ExperimentMeta = {
   kind: "practical",
   difficulty: "easy",
   practicalNo: "A3",
-  tags: ["series", "parallel", "resistance", "metre bridge", "combination"]
+  tags: ["series","parallel","resistance","metre bridge","combination"]
 };

@@ -12,5 +12,5 @@ export const meta: ExperimentMeta = {
   chapter: "Unit III · Magnetic Field of Coils",
   kind: "theory",
   difficulty: "easy",
-  tags: ["solenoid", "magnetic field", "biot-savart", "axial field"]
+  tags: ["solenoid","magnetic field","biot-savart","axial field"]
 };

@@ -29,7 +29,16 @@ export function useLang(): { lang: Lang; setLang: (l: Lang) => void } {
 /** Returns a translator for the static UI strings, falling back to English. */
 export function useT() {
   const { lang } = useLang();
-  return useCallback((key: StrKey): string => STRINGS[key][lang] ?? STRINGS[key].en, [lang]);
+  return useCallback(
+    (key: StrKey): string => {
+      // A key added to the UI before it reaches the dictionary must degrade to
+      // the key itself, never throw and take the whole page down with it.
+      const entry = STRINGS[key];
+      if (!entry) return String(key);
+      return entry[lang] ?? entry.en;
+    },
+    [lang]
+  );
 }
 
 /**

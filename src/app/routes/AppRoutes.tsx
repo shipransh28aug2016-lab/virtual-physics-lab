@@ -34,7 +34,9 @@ export function AppRoutes() {
           <Route
             key={mod.meta.slug}
             path={`simulators/physics/${mod.meta.slug}`}
-            element={<ExperimentPage module={mod} />}
+            // Keyed so switching experiments mounts a fresh page rather than
+            // reconciling into the previous one and keeping its apparatus.
+            element={<ExperimentPage key={mod.meta.slug} module={mod} />}
           />
         ))}
         <Route path="*" element={<NotFoundPage />} />

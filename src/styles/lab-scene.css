@@ -365,3 +365,37 @@
 .tex-num { border-bottom: 1px solid currentColor; padding: 0 3px; }
 .tex-den { padding: 0 3px; }
 .tex-sqrt-body { border-top: 1px solid currentColor; padding: 0 2px; }
+
+.segment-cell { fill: var(--surface-3); stroke: var(--line-2); stroke-width: 1; }
+.segment-cell.is-active { fill: var(--primary); stroke: var(--primary); }
+.stage-segmented [role='radio'] { cursor: pointer; }
+.stage-segmented [role='radio']:focus-visible .segment-cell { stroke: var(--accent); stroke-width: 2; }
+
+/* ── responsive corrections ─────────────────────────────────────────────── */
+
+/* The apparatus must fill its panel exactly: the bezel already provides the
+   inset, so the stage itself carries no padding of its own. */
+.viewport-stage {
+  padding: 0;
+  border: 0;
+}
+
+/* Nothing may push the page sideways at 360 px. The header, the filter rows
+   and the education tabs all wrap or scroll within their own box instead. */
+.header-inner { flex-wrap: wrap; row-gap: var(--sp-2); }
+.header-actions { flex-wrap: wrap; }
+.app-nav { min-width: 0; }
+.row { flex-wrap: wrap; min-width: 0; }
+.tabs { overflow-x: auto; scrollbar-width: thin; }
+.tabs .tab { flex: 0 0 auto; }
+.page,
+.shell-width,
+.panel,
+.panel-body { min-width: 0; max-width: 100%; }
+.sim-head-main { min-width: 0; }
+.breadcrumb { flex-wrap: wrap; }
+
+@media (max-width: 520px) {
+  .header-actions .btn { padding-inline: 8px; }
+  .catalogue-tools { flex-direction: column; align-items: stretch; }
+}

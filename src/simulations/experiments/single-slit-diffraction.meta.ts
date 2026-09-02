@@ -12,5 +12,5 @@ export const meta: ExperimentMeta = {
   chapter: "Unit VII · Wave Optics",
   kind: "theory",
   difficulty: "moderate",
-  tags: ["diffraction", "single slit", "fraunhofer", "wavelength", "interference"]
+  tags: ["diffraction","single slit","fraunhofer","wavelength","interference"]
 };

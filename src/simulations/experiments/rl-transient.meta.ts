@@ -12,5 +12,5 @@ export const meta: ExperimentMeta = {
   chapter: "Unit IV · Inductance",
   kind: "theory",
   difficulty: "moderate",
-  tags: ["rl", "inductor", "transient", "time constant", "back emf"]
+  tags: ["rl","inductor","transient","time constant","back emf"]
 };

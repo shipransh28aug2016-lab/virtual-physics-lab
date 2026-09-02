@@ -4,6 +4,7 @@ import type {
   ControlSpec,
   ParamValue,
   ParamValues,
+  SegmentedControl,
   SliderControl,
   ToggleControl
 } from '@/types/lab';
@@ -285,6 +286,92 @@ export function StageSwitch({ spec, params, onChange, x, y, label }: StageSwitch
       <text y={-18} textAnchor="middle" className="stage-ctl-label">
         {spec.label}
       </text>
+    </g>
+  );
+}
+
+/* ── Segmented selector ─────────────────────────────────────────────────── */
+
+export interface StageSegmentedProps extends HandleProps<SegmentedControl> {
+  x: number;
+  y: number;
+  /** Width of one segment; the group is centred on x. */
+  segmentWidth?: number;
+}
+
+/**
+ * A mode selector mounted on the apparatus — the plug-key equivalent of a rotary
+ * mode switch. Exposed as a radio group so it is reachable by keyboard.
+ */
+export function StageSegmented({
+  spec,
+  params,
+  onChange,
+  x,
+  y,
+  segmentWidth = 74,
+  label
+}: StageSegmentedProps) {
+  const current = String(params[spec.key] ?? spec.initial);
+  const disabled = spec.disabledIf?.(params) ?? false;
+  const n = spec.options.length;
+  const total = n * segmentWidth;
+
+  const move = (delta: number) => {
+    if (disabled) return;
+    const i = spec.options.findIndex((o) => o.value === current);
+    const next = spec.options[(i + delta + n) % n];
+    if (next) onChange(spec.key, next.value);
+  };
+
+  return (
+    <g
+      className={`stage-ctl stage-segmented${disabled ? ' is-disabled' : ''}`}
+      role="radiogroup"
+      aria-label={label ?? spec.label}
+      transform={`translate(${x - total / 2} ${y})`}
+    >
+      <text x={total / 2} y={-14} textAnchor="middle" className="stage-ctl-label">
+        {spec.label}
+      </text>
+      {spec.options.map((o, i) => {
+        const active = o.value === current;
+        return (
+          <g
+            key={o.value}
+            role="radio"
+            aria-checked={active}
+            aria-label={o.label}
+            tabIndex={disabled ? -1 : active ? 0 : -1}
+            transform={`translate(${i * segmentWidth} 0)`}
+            onClick={() => !disabled && onChange(spec.key, o.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                e.preventDefault();
+                move(1);
+              } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                e.preventDefault();
+                move(-1);
+              } else if (e.key === ' ' || e.key === 'Enter') {
+                e.preventDefault();
+                if (!disabled) onChange(spec.key, o.value);
+              }
+            }}
+          >
+            <rect
+              x={0}
+              y={-11}
+              width={segmentWidth}
+              height={22}
+              className={`segment-cell${active ? ' is-active' : ''}`}
+              rx={i === 0 ? 5 : 0}
+            />
+            <text x={segmentWidth / 2} y={4} textAnchor="middle" className={active ? 'stage-ctl-value' : 'stage-ctl-label'}>
+              {o.label}
+            </text>
+          </g>
+        );
+      })}
     </g>
   );
 }

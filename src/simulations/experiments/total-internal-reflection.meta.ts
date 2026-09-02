@@ -12,5 +12,5 @@ export const meta: ExperimentMeta = {
   chapter: "Unit VI · Ray Optics",
   kind: "theory",
   difficulty: "easy",
-  tags: ["tir", "critical angle", "optical fibre", "prism", "refraction"]
+  tags: ["tir","critical angle","optical fibre","prism","refraction"]
 };

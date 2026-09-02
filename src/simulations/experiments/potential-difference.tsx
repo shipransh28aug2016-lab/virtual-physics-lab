@@ -164,7 +164,7 @@ function Stage({ params, set, control }: StageApi) {
       <text x={400} y={66} textAnchor="middle" fontSize={13} fill="#eaf1f8" fontWeight={600}>
         Equipotential surfaces cut the field lines at right angles
       </text>
-      <text x={400} y={396} textAnchor="middle" fontSize={10.5} fill="#5e7189">
+      <text x={400} y={356} textAnchor="middle" fontSize={10.5} fill="#5e7189">
         r_A = {(rA * 100).toFixed(1)} cm · r_B = {(rB * 100).toFixed(1)} cm · V_A − V_B = {formatSI(potentialPointCharge(q, rA) - potentialPointCharge(q, rB), 3)} V
       </text>
       {/* Points A and B are placed by dragging; the source charge has its own dial. */}

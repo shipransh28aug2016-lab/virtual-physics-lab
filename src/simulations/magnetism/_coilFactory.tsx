@@ -195,7 +195,7 @@ export function makeCoilStage(c: CoilConfig) {
             I = {current.toFixed(1)} A
           </text>
         </g>
-        <text x={400} y={432} textAnchor="middle" fontSize={10.5} fill="#8497ad">
+        <text x={400} y={358} textAnchor="middle" fontSize={10.5} fill="#8497ad">
           {c.mode === 'anti-helmholtz'
             ? 'coils carry current in opposite senses · B = 0 at the mid-point'
             : c.mode === 'helmholtz'
@@ -217,7 +217,7 @@ export function makeCoilStage(c: CoilConfig) {
           spec={control('current', 'slider')}
           params={params}
           onChange={(key, value) => set(key, value)}
-          x={120}
+          x={62}
           y={404}
           radius={18}
           label="Coil current I — turn the supply"

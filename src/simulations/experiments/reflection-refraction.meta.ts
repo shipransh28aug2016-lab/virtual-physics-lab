@@ -12,5 +12,5 @@ export const meta: ExperimentMeta = {
   chapter: "Unit VI · Ray Optics",
   kind: "theory",
   difficulty: "easy",
-  tags: ["snell", "refraction", "reflection", "refractive index", "normal"]
+  tags: ["snell","refraction","reflection","refractive index","normal"]
 };

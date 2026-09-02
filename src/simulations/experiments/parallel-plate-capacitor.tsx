@@ -80,7 +80,7 @@ const education: EducationPack = {
   viva: [
     { q: 'Why does inserting a dielectric increase the capacitance?', a: 'The dielectric polarises and its internal field opposes the applied field, so the same charge produces a smaller potential difference, and C = Q/V increases.' },
     { q: 'What stays constant if the battery is disconnected before the plates are moved?', a: 'The charge on the plates.' },
-    { q: 'What is the energy density between the plates?', a: 'u = ½κε₀E².' },
+    { q: 'What is the energy density between the plates?', a: 'u = ½κε₀E² — the energy stored per unit volume of the field, which is why doubling the field quadruples the stored energy.' },
     { q: 'What is the field inside the dielectric?', a: 'E = E₀/κ, reduced by the relative permittivity.' },
     { q: 'Define one farad.', a: 'The capacitance of a conductor that stores one coulomb per volt of potential difference.' }
   ],

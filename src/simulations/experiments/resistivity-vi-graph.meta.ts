@@ -13,5 +13,5 @@ export const meta: ExperimentMeta = {
   kind: "practical",
   difficulty: "easy",
   practicalNo: "A1",
-  tags: ["resistivity", "ohm", "v-i graph", "ammeter", "voltmeter", "screw gauge"]
+  tags: ["resistivity","ohm","v-i graph","ammeter","voltmeter","screw gauge"]
 };

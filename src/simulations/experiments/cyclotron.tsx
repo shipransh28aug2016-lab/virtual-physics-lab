@@ -196,7 +196,7 @@ function Stage({ params, set, control }: StageApi) {
           <circle cx={120 + (i % 5) * 34} cy={400 + Math.floor(i / 5) * 30} r={1.6} fill="#7dd3fc" />
         </g>
       ))}
-      <text x={120} y={468} fontSize={9.5} fill="#7dd3fc">B out of the page</text>
+      <text x={120} y={392} fontSize={9.5} fill="#7dd3fc">B out of the page</text>
       <path ref={pathRef} d="" fill="none" stroke="#ffd257" strokeWidth={1.6} opacity={0.85} />
       <circle ref={dotRef} r={6} fill="#ffd257" style={{ filter: 'drop-shadow(0 0 8px #ffd25799)' }} />
       <path d="M410 440 V466 M470 440 V466" className="lead" stroke="#8497ad" />

@@ -152,7 +152,7 @@ function Stage({ params, set, control }: StageApi) {
           θ = {angle.toFixed(0)}° · L = {(length * 100).toFixed(0)} cm
         </text>
       </g>
-      <text x={400} y={436} textAnchor="middle" fontSize={10.5} fill="#5e7189">
+      <text x={400} y={462} textAnchor="middle" fontSize={10.5} fill="#5e7189">
         Fleming’s left-hand rule · F = BIL sin θ
       </text>
       {/* The commutator switch that reverses the current through the wire. */}

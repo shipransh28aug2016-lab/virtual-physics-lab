@@ -18,6 +18,7 @@ export const STRINGS = {
   'nav.practicals': { en: 'Practicals', hi: 'प्रयोग' },
   'nav.skip': { en: 'Skip to main content', hi: 'मुख्य सामग्री पर जाएँ' },
   'nav.home': { en: 'home', hi: 'मुखपृष्ठ' },
+  'nav.about': { en: 'About', hi: 'परिचय' },
 
   // ----------------------------------------------------------------- header
   'header.search': { en: 'Search', hi: 'खोजें' },

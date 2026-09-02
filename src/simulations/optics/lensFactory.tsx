@@ -85,8 +85,8 @@ export function makeLensStage(c: LensConfig) {
     const u = -uCm;
     const oX = xOf(g, u);
     const oY = yOf(g, hCm);
-    const iX = Number.isFinite(img.imageDistance) ? xOf(g, img.imageDistance) : null;
-    const iY = Number.isFinite(img.imageHeight) ? yOf(g, img.imageHeight) : null;
+    const iX = Number.isFinite(img.imageDistance) ? xOf(g, img.imageDistance * 100) : null;
+    const iY = Number.isFinite(img.imageHeight) ? yOf(g, img.imageHeight * 100) : null;
     const fX = xOf(g, fCm);
     const f2X = xOf(g, -fCm);
 
@@ -121,7 +121,7 @@ export function makeLensStage(c: LensConfig) {
         objectHeight={hCm}
         image={img}
         title={`${c.convex ? 'Convex' : 'Concave'} lens · f = ${fCm.toFixed(1)} cm · P = ${(100 / fCm).toFixed(2)} D`}
-        subtitle={`u = ${uCm.toFixed(1)} cm → v = ${img.imageDistance.toFixed(2)} cm · m = ${img.magnification.toFixed(3)}`}
+        subtitle={`u = ${uCm.toFixed(1)} cm → v = ${(img.imageDistance * 100).toFixed(2)} cm · m = ${img.magnification.toFixed(3)}`}
         optic={
           <>
             <LensSvg x={g.originX} y={g.axisY} convex={c.convex} height={210} thickness={26} label="O" />
@@ -135,7 +135,7 @@ export function makeLensStage(c: LensConfig) {
           params={params}
           onChange={(key, value) => set(key, value)}
           x={g.originX}
-          y={g.axisY + 30}
+          y={g.axisY + 96}
           length={g.originX - xOf(g, -60)}
           mapping={{ toValue: (dx) => -dx / g.scale, invert: (u) => xOf(g, -u) }}
           label="Object distance u — drag along the bench"

@@ -13,5 +13,5 @@ export const meta: ExperimentMeta = {
   kind: "practical",
   difficulty: "easy",
   practicalNo: "B6",
-  tags: ["refractive index", "glass slab", "travelling microscope", "real depth", "apparent depth"]
+  tags: ["refractive index","glass slab","travelling microscope","real depth","apparent depth"]
 };

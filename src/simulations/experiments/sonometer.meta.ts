@@ -13,5 +13,5 @@ export const meta: ExperimentMeta = {
   kind: "practical",
   difficulty: "moderate",
   practicalNo: "A6",
-  tags: ["sonometer", "frequency", "resonance", "standing waves", "mains"]
+  tags: ["sonometer","frequency","resonance","standing waves","mains"]
 };

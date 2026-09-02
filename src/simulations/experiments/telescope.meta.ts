@@ -12,5 +12,5 @@ export const meta: ExperimentMeta = {
   chapter: "Unit VI · Optical Instruments",
   kind: "theory",
   difficulty: "moderate",
-  tags: ["telescope", "magnification", "objective", "eyepiece", "normal adjustment"]
+  tags: ["telescope","magnification","objective","eyepiece","normal adjustment"]
 };

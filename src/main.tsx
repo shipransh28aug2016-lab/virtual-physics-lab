@@ -16,7 +16,7 @@ if (!host) throw new Error('Root element #root is missing from index.html');
 createRoot(host).render(
   <StrictMode>
     <PreferencesProvider>
-      <Router>
+      <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <AppRoutes />
       </Router>
     </PreferencesProvider>

@@ -13,5 +13,5 @@ export const meta: ExperimentMeta = {
   kind: "practical",
   difficulty: "easy",
   practicalNo: "B8",
-  tags: ["refractive index", "concave mirror", "apparent depth", "liquid"]
+  tags: ["refractive index","concave mirror","apparent depth","liquid"]
 };

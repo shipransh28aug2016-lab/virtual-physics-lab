@@ -12,5 +12,5 @@ export const meta: ExperimentMeta = {
   chapter: "Unit VII · Wave Nature of Light",
   kind: "theory",
   difficulty: "moderate",
-  tags: ["speed of light", "foucault", "rotating mirror", "c"]
+  tags: ["speed of light","foucault","rotating mirror","c"]
 };

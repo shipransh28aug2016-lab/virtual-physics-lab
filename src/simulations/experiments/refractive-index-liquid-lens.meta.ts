@@ -13,5 +13,5 @@ export const meta: ExperimentMeta = {
   kind: "practical",
   difficulty: "moderate",
   practicalNo: "B7",
-  tags: ["refractive index", "convex lens", "plane mirror", "liquid lens", "lens maker"]
+  tags: ["refractive index","convex lens","plane mirror","liquid lens","lens maker"]
 };

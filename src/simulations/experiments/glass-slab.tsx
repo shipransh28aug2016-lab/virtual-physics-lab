@@ -54,7 +54,7 @@ const education: EducationPack = {
   viva: [
     { q: 'Why is the emergent ray parallel to the incident ray?', a: 'Because the two faces are parallel, the refraction at the second face exactly undoes the angular change made at the first.' },
     { q: 'When is the lateral shift maximum?', a: 'For a given slab, at the largest angle of incidence; for a given angle, for the thickest slab.' },
-    { q: 'What is the lateral shift at normal incidence?', a: 'Zero.' },
+    { q: 'What is the lateral shift at normal incidence?', a: 'Zero. At i = 0 the ray meets the surface along the normal, so there is no refraction at either face and nothing to displace it.' },
     { q: 'Does the lateral shift depend on the colour of light?', a: 'Yes, because the refractive index depends on wavelength, so different colours shift by different amounts.' }
   ],
   resultTemplate: 'The measured lateral shift agrees with d = t sin(i − r)/cos r, and the refractive index obtained from sin i / sin r matches the glass used.'

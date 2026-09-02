@@ -49,7 +49,7 @@ const education: EducationPack = {
   tips: ['Rotate through 90° and watch the screen go dark: that is the crossed position.'],
   viva: [
     { q: 'State Malus’s law.', a: 'I = I₀ cos²θ, where θ is the angle between the transmission axes of the polariser and the analyser.' },
-    { q: 'What is the intensity when the polarisers are crossed?', a: 'Zero.' },
+    { q: 'What is the intensity when the polarisers are crossed?', a: 'Zero. At θ = 90° the cos²θ factor vanishes, so the analyser transmits none of the light the polariser passed.' },
     { q: 'Why does an unpolarised beam lose half its intensity in a polariser?', a: 'Because only one of the two equally energetic perpendicular components is transmitted.' },
     { q: 'What is the period of the intensity variation?', a: '180°, since cos²θ repeats every 180°.' },
     { q: 'Name one application of polarisation.', a: 'Polaroid sunglasses, which suppress glare reflected from horizontal surfaces.' }

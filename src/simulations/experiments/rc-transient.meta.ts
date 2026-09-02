@@ -12,5 +12,5 @@ export const meta: ExperimentMeta = {
   chapter: "Unit IV · Capacitors",
   kind: "theory",
   difficulty: "moderate",
-  tags: ["rc", "capacitor", "transient", "time constant", "exponential"]
+  tags: ["rc","capacitor","transient","time constant","exponential"]
 };

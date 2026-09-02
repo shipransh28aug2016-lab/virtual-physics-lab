@@ -12,5 +12,5 @@ export const meta: ExperimentMeta = {
   chapter: "Unit II · Current Electricity",
   kind: "theory",
   difficulty: "moderate",
-  tags: ["resistivity", "temperature", "coefficient", "semiconductor", "thermistor"]
+  tags: ["resistivity","temperature","coefficient","semiconductor","thermistor"]
 };

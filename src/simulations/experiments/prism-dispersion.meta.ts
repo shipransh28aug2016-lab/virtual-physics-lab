@@ -13,5 +13,5 @@ export const meta: ExperimentMeta = {
   kind: "practical",
   difficulty: "moderate",
   practicalNo: "B5",
-  tags: ["prism", "dispersion", "minimum deviation", "refractive index", "spectrum"]
+  tags: ["prism","dispersion","minimum deviation","refractive index","spectrum"]
 };

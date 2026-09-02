@@ -463,7 +463,7 @@ export function MetreBridgeWire({
               <g key={i}>
                 <line x1={px} y1={y + 4} x2={px} y2={y + (major ? 14 : 9)} stroke="#5e7189" strokeWidth={major ? 1.4 : 0.8} />
                 {major ? (
-                  <text x={px} y={y + 26} textAnchor="middle" fontSize={9} fill="#8497ad">
+                  <text x={px} y={y + 42} textAnchor="middle" fontSize={9} fill="#8497ad">
                     {i * 5}
                   </text>
                 ) : null}
