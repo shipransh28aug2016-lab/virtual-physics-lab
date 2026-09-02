@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { EXPERIMENTS, byUnit, findExperiment, searchExperiments } from './registry';
-import { UNITS } from '@/data/units';
+import { THEORY_MARKS, UNITS } from '@/data/units';
 
 /**
  * The CBSE Class XII physics practical list for the 2026-27 curriculum.
@@ -67,6 +67,65 @@ describe('experiment registry', () => {
     const a = byUnit('practical-a').map((e) => e.meta.practicalNo ?? '');
     const numbered = a.filter(Boolean);
     expect(numbered).toEqual(['A1', 'A2', 'A3', 'A4', 'A5', 'A6']);
+  });
+});
+
+/**
+ * The nine units of the CBSE Class XII physics curriculum and the NCERT
+ * chapters in each. A `chapter` string on any experiment must name one of these
+ * chapters against its own unit number, so a simulator cannot claim a chapter
+ * that belongs to a different unit.
+ */
+const CBSE_UNITS: Record<string, string[]> = {
+  I: ['Electric Charges and Fields', 'Electrostatic Potential and Capacitance'],
+  II: ['Current Electricity'],
+  III: ['Moving Charges and Magnetism', 'Magnetism and Matter'],
+  IV: ['Electromagnetic Induction', 'Alternating Current'],
+  V: ['Electromagnetic Waves'],
+  VI: ['Ray Optics and Optical Instruments', 'Wave Optics'],
+  VII: ['Dual Nature of Radiation and Matter'],
+  VIII: ['Atoms', 'Nuclei'],
+  IX: ['Semiconductor Electronics']
+};
+
+/** Which unit number each browsing unit of the site draws its content from. */
+const UNIT_NUMBERS: Record<string, string[]> = {
+  electrostatics: ['I'],
+  'current-electricity': ['II'],
+  magnetism: ['III'],
+  'emi-ac': ['IV'],
+  optics: ['VI'],
+  'dual-nature': ['VII'],
+  // The practical sections draw on whichever unit each experiment belongs to.
+  'practical-a': ['II', 'III', 'IV'],
+  'practical-b': ['VI', 'IX']
+};
+
+describe('CBSE 2026-27 syllabus mapping', () => {
+  it.each(EXPERIMENTS.map((e) => [e.meta.slug, e.meta] as const))(
+    '%s names a real CBSE unit and chapter',
+    (slug, meta) => {
+      const m = meta.chapter.match(/^Unit ([IVX]+) · (.+)$/);
+      expect(m, `${slug}: chapter "${meta.chapter}" is not "Unit N · Chapter"`).not.toBeNull();
+      const [, unitNo, chapter] = m!;
+      expect(Object.keys(CBSE_UNITS), `${slug}: unit ${unitNo} is not in the curriculum`).toContain(unitNo);
+      expect(CBSE_UNITS[unitNo], `${slug}: "${chapter}" is not a chapter of Unit ${unitNo}`).toContain(chapter);
+      expect(
+        UNIT_NUMBERS[meta.unit],
+        `${slug} is browsed under "${meta.unit}" but claims Unit ${unitNo}`
+      ).toContain(unitNo);
+    }
+  );
+
+  it('covers the units the theory paper weights most heavily', () => {
+    const covered = new Set(EXPERIMENTS.map((e) => e.meta.chapter.split(' · ')[0]));
+    for (const unit of ['Unit I', 'Unit II', 'Unit III', 'Unit VI', 'Unit VII']) {
+      expect(covered, `nothing covers ${unit}`).toContain(unit);
+    }
+  });
+
+  it('adds up the theory paper to 70 marks', () => {
+    expect(THEORY_MARKS).toBe(70);
   });
 });
 

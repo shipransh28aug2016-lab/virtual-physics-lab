@@ -9,7 +9,7 @@ export const meta: ExperimentMeta = {
   shortTitle: "Reflection & Refraction",
   aim: "To verify the laws of reflection and refraction of light at a plane surface and to determine the refractive index of the medium.",
   unit: "optics",
-  chapter: "Unit VI · Ray Optics",
+  chapter: "Unit VI · Ray Optics and Optical Instruments",
   kind: "theory",
   difficulty: "easy",
   tags: ["snell","refraction","reflection","refractive index","normal"]

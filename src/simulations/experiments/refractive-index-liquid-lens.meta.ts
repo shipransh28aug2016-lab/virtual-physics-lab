@@ -9,7 +9,7 @@ export const meta: ExperimentMeta = {
   shortTitle: "Index of a Liquid",
   aim: "To determine the refractive index of a liquid using a convex lens and a plane mirror.",
   unit: "practical-b",
-  chapter: "Unit VI · Ray Optics",
+  chapter: "Unit VI · Ray Optics and Optical Instruments",
   kind: "practical",
   difficulty: "moderate",
   practicalNo: "B7",

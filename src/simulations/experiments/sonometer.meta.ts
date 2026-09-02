@@ -9,7 +9,7 @@ export const meta: ExperimentMeta = {
   shortTitle: "Sonometer",
   aim: "To determine the frequency of the alternating current mains using a sonometer and an electromagnet.",
   unit: "practical-a",
-  chapter: "Unit V · Waves and Oscillations",
+  chapter: "Unit IV · Alternating Current",
   kind: "practical",
   difficulty: "moderate",
   practicalNo: "A6",

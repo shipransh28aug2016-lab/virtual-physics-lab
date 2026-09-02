@@ -9,7 +9,7 @@ export const meta: ExperimentMeta = {
   shortTitle: "Potential Difference",
   aim: "To study the electric potential due to a point charge, to plot equipotential surfaces and to relate potential difference to the work done on a test charge.",
   unit: "electrostatics",
-  chapter: "Unit I · Electrostatic Potential",
+  chapter: "Unit I · Electrostatic Potential and Capacitance",
   kind: "theory",
   difficulty: "easy",
   tags: ["potential","equipotential","work","voltage","field"]

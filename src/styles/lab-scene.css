@@ -399,3 +399,11 @@
   .header-actions .btn { padding-inline: 8px; }
   .catalogue-tools { flex-direction: column; align-items: stretch; }
 }
+
+.unit-card-foot {
+  color: var(--primary);
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+}
+.unit-card-foot.is-pending { color: var(--ink-4); }
+.unit-card.is-empty { opacity: 0.62; cursor: default; }

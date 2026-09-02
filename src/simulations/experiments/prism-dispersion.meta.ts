@@ -9,7 +9,7 @@ export const meta: ExperimentMeta = {
   shortTitle: "Prism Dispersion",
   aim: "To determine the angle of minimum deviation for a given prism by plotting a graph between the angle of incidence and the angle of deviation.",
   unit: "practical-b",
-  chapter: "Unit VI · Refraction and Dispersion",
+  chapter: "Unit VI · Ray Optics and Optical Instruments",
   kind: "practical",
   difficulty: "moderate",
   practicalNo: "B5",

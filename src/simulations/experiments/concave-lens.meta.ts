@@ -9,7 +9,7 @@ export const meta: ExperimentMeta = {
   shortTitle: "Concave Lens",
   aim: "To find the focal length of a concave lens using an auxiliary convex lens, since a concave lens alone cannot form a real image.",
   unit: "practical-b",
-  chapter: "Unit VI · Ray Optics",
+  chapter: "Unit VI · Ray Optics and Optical Instruments",
   kind: "practical",
   difficulty: "moderate",
   practicalNo: "B4",

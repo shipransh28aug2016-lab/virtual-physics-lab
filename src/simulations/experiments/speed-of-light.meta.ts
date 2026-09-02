@@ -8,8 +8,8 @@ export const meta: ExperimentMeta = {
   title: "Measurement of the Speed of Light (Rotating Mirror)",
   shortTitle: "Speed of Light",
   aim: "To determine the speed of light in air using the rotating mirror method and to compare it with the accepted value.",
-  unit: "dual-nature",
-  chapter: "Unit VII · Wave Nature of Light",
+  unit: "optics",
+  chapter: "Unit VI · Wave Optics",
   kind: "theory",
   difficulty: "moderate",
   tags: ["speed of light","foucault","rotating mirror","c"]

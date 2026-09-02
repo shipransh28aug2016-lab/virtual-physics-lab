@@ -8,8 +8,8 @@ export const meta: ExperimentMeta = {
   title: "Anti-Helmholtz Coil — Field Gradient",
   shortTitle: "Anti-Helmholtz Coil",
   aim: "To study the axial field of a pair of coaxial coils carrying equal currents in opposite senses and to measure the field gradient at the mid-point.",
-  unit: "emi-ac",
-  chapter: "Unit III · Magnetic Field of Coils",
+  unit: "magnetism",
+  chapter: "Unit III · Moving Charges and Magnetism",
   kind: "theory",
   difficulty: "moderate",
   tags: ["anti-helmholtz","field gradient","coils","magnetic trap"]

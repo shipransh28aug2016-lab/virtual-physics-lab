@@ -5,7 +5,7 @@ import { meta } from './anti-helmholtz-coil.meta';
 
 export { meta };
 
-const config = { mode: 'anti-helmholtz' as const, id: meta.id, slug: meta.slug, title: meta.title, shortTitle: meta.shortTitle, aim: meta.aim };
+const config = { mode: 'anti-helmholtz' as const, meta };
 
 const definition = makeCoilDefinition(config);
 const education = makeCoilEducation(config);

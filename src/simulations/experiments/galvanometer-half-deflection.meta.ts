@@ -9,7 +9,7 @@ export const meta: ExperimentMeta = {
   shortTitle: "Half-Deflection",
   aim: "To find the resistance of a given galvanometer by the half-deflection method and to determine its figure of merit.",
   unit: "practical-a",
-  chapter: "Unit III · Moving Coil Galvanometer",
+  chapter: "Unit III · Moving Charges and Magnetism",
   kind: "practical",
   difficulty: "moderate",
   practicalNo: "A4",

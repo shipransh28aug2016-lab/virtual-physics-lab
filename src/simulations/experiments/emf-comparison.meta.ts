@@ -8,7 +8,7 @@ export const meta: ExperimentMeta = {
   title: "Comparison of EMF of Two Cells (Potentiometer)",
   shortTitle: "EMF Comparison",
   aim: "To compare the EMF of two given primary cells using a potentiometer.",
-  unit: "practical-a",
+  unit: "current-electricity",
   chapter: "Unit II · Current Electricity",
   kind: "theory",
   difficulty: "moderate",

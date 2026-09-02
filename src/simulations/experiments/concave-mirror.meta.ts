@@ -9,7 +9,7 @@ export const meta: ExperimentMeta = {
   shortTitle: "Concave Mirror",
   aim: "To find the value of v for different values of u in the case of a concave mirror and hence determine its focal length.",
   unit: "practical-b",
-  chapter: "Unit VI · Ray Optics",
+  chapter: "Unit VI · Ray Optics and Optical Instruments",
   kind: "practical",
   difficulty: "moderate",
   practicalNo: "B1",

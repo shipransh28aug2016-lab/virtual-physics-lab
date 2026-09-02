@@ -9,7 +9,7 @@ export const meta: ExperimentMeta = {
   shortTitle: "Lateral Shift in Glass Slab",
   aim: "To trace the path of a ray through a rectangular glass slab, measure the lateral shift and determine the refractive index of the glass.",
   unit: "practical-b",
-  chapter: "Unit VI · Ray Optics",
+  chapter: "Unit VI · Ray Optics and Optical Instruments",
   kind: "activity",
   difficulty: "easy",
   tags: ["slab","lateral shift","refractive index","refraction","emergent ray"]

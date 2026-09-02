@@ -11,15 +11,7 @@ import { meta } from './convex-mirror.meta';
 
 export { meta };
 
-const config = {
-  concave: false,
-  id: meta.id,
-  slug: meta.slug,
-  title: meta.title,
-  shortTitle: meta.shortTitle,
-  aim: meta.aim,
-  practicalNo: meta.practicalNo
-};
+const config = { concave: false, meta };
 
 const definition = makeMirrorDefinition(config);
 const education = makeMirrorEducation(config);

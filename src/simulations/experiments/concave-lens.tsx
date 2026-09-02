@@ -5,7 +5,7 @@ import { meta } from './concave-lens.meta';
 
 export { meta };
 
-const config = { convex: false, id: meta.id, slug: meta.slug, title: meta.title, shortTitle: meta.shortTitle, aim: meta.aim, practicalNo: meta.practicalNo, unit: 'practical-b' as const, kind: 'practical' as const };
+const config = { convex: false, meta };
 
 const definition = makeLensDefinition(config);
 const education = makeLensEducation(config);

@@ -1,4 +1,5 @@
 import type { EducationPack, ExperimentDefinition, ObservationRow, ParamValues } from '@/types/lab';
+import type { ExperimentMeta } from '@/experiments/registry';
 import type { ModelOutput } from '@/components/shell/PhysicsExperiment';
 import { lensImage, lensPower } from '@/physics-engine/optics';
 import { OpticsBench, benchGeometry, xOf, yOf, FocalMarks, type BenchRay } from '@/components/instruments/OpticsBench';
@@ -9,21 +10,16 @@ import { formatFixed } from '@/utils/format';
 
 export interface LensConfig {
   convex: boolean;
-  id: string;
-  slug: string;
-  title: string;
-  shortTitle: string;
-  aim: string;
-  practicalNo?: string;
-  unit: 'practical-b' | 'optics';
-  kind: 'practical' | 'theory';
+  /** The catalogue entry this simulator is built from. */
+  meta: ExperimentMeta;
 }
 
 export function makeLensDefinition(c: LensConfig): ExperimentDefinition {
   return {
-    id: c.id, slug: c.slug, title: c.title, shortTitle: c.shortTitle, aim: c.aim,
-    unit: c.unit, chapter: 'Unit VI · Ray Optics', kind: c.kind,
-    difficulty: 'moderate', practicalNo: c.practicalNo, thumbLabel: c.shortTitle, accent: '#6ee7ff',
+    id: c.meta.id, slug: c.meta.slug, title: c.meta.title, shortTitle: c.meta.shortTitle,
+    aim: c.meta.aim, unit: c.meta.unit, chapter: c.meta.chapter, kind: c.meta.kind,
+    difficulty: c.meta.difficulty, practicalNo: c.meta.practicalNo,
+    thumbLabel: c.meta.shortTitle, accent: '#6ee7ff',
     controls: [
       { kind: 'slider', key: 'u', label: 'Object distance', symbol: 'u', unit: 'cm', min: 3, max: 60, step: 0.5, initial: 30, precision: 1 },
       { kind: 'slider', key: 'f', label: 'Focal length', symbol: 'f', unit: 'cm', min: c.convex ? 4 : -30, max: c.convex ? 30 : -4, step: 0.5, initial: c.convex ? 15 : -15, precision: 1, hint: c.convex ? 'Positive for a converging lens' : 'Negative for a diverging lens' },
@@ -216,7 +212,7 @@ export const lensNotebook = (c: LensConfig) => {
     const hCm = num(p, 'height', 1.5);
     const img = lensImage(uCm / 100, fCm / 100, hCm / 100);
     return {
-      title: `Observation table — ${c.shortTitle}`,
+      title: `Observation table — ${c.meta.shortTitle}`,
       columns: [
         col('u', 'u', 'cm', 1),
         col('v', 'v', 'cm', 2),

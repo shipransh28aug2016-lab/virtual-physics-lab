@@ -13,10 +13,11 @@ export const UNIT_LABELS_HI: Record<UnitSlug, string> = {
   'current-electricity': 'धारा वैद्युतिकी',
   magnetism: 'चल आवेश एवं चुम्बकत्व',
   'emi-ac': 'विद्युत चुम्बकीय प्रेरण एवं प्रत्यावर्ती धारा',
+  'electromagnetic-waves': 'विद्युत चुम्बकीय तरंगें',
   optics: 'प्रकाशिकी',
-  'dual-nature': 'द्वैत प्रकृति एवं आधुनिक भौतिकी',
-  'modern-physics': 'आधुनिक भौतिकी',
-  chemistry: 'रसायन विज्ञान',
+  'dual-nature': 'विकिरण तथा द्रव्य की द्वैत प्रकृति',
+  'atoms-nuclei': 'परमाणु एवं नाभिक',
+  'electronic-devices': 'इलेक्ट्रॉनिक युक्तियाँ',
   'practical-a': 'प्रयोग · भाग A',
   'practical-b': 'प्रयोग · भाग B'
 };

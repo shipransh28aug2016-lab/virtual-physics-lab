@@ -5,7 +5,7 @@ import { meta } from './myopia.meta';
 
 export { meta };
 
-const config = { defect: 'myopia' as const, id: meta.id, slug: meta.slug, title: meta.title, shortTitle: meta.shortTitle, aim: meta.aim };
+const config = { defect: 'myopia' as const, meta };
 
 const definition = makeDefectDefinition(config);
 const education = makeDefectEducation(config);

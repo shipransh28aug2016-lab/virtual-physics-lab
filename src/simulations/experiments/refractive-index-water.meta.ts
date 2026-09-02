@@ -9,7 +9,7 @@ export const meta: ExperimentMeta = {
   shortTitle: "Index of Water",
   aim: "To determine the refractive index of water (and of another liquid) using a concave mirror.",
   unit: "practical-b",
-  chapter: "Unit VI · Ray Optics",
+  chapter: "Unit VI · Ray Optics and Optical Instruments",
   kind: "practical",
   difficulty: "easy",
   practicalNo: "B8",

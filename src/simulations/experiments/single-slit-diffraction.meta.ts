@@ -8,8 +8,8 @@ export const meta: ExperimentMeta = {
   title: "Single Slit Diffraction",
   shortTitle: "Single Slit Diffraction",
   aim: "To observe the Fraunhofer diffraction pattern of a single slit and to study how the slit width and wavelength set the width of the central maximum.",
-  unit: "dual-nature",
-  chapter: "Unit VII · Wave Optics",
+  unit: "optics",
+  chapter: "Unit VI · Wave Optics",
   kind: "theory",
   difficulty: "moderate",
   tags: ["diffraction","single slit","fraunhofer","wavelength","interference"]

@@ -8,8 +8,8 @@ export const meta: ExperimentMeta = {
   title: "Capacitor Charging and Discharging (RC Circuit)",
   shortTitle: "RC Transient",
   aim: "To study the growth and decay of charge on a capacitor and to verify that the time constant equals RC.",
-  unit: "emi-ac",
-  chapter: "Unit IV · Capacitors",
+  unit: "current-electricity",
+  chapter: "Unit II · Current Electricity",
   kind: "theory",
   difficulty: "moderate",
   tags: ["rc","capacitor","transient","time constant","exponential"]

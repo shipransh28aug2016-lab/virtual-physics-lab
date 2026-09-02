@@ -54,6 +54,8 @@ describe.each(cases)('%s', (slug, entry) => {
     expect(definition.id).toBe(entry.meta.id);
     expect(definition.title).toBe(entry.meta.title);
     expect(definition.unit).toBe(entry.meta.unit);
+    expect(definition.chapter).toBe(entry.meta.chapter);
+    expect(definition.difficulty).toBe(entry.meta.difficulty);
     expect(definition.kind).toBe(entry.meta.kind);
     if (entry.meta.practicalNo) expect(definition.practicalNo).toBe(entry.meta.practicalNo);
   });

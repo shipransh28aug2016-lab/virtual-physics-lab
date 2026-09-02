@@ -9,7 +9,7 @@ export const meta: ExperimentMeta = {
   shortTitle: "Parallel Plate Capacitor",
   aim: "To study how the capacitance, charge, field and stored energy of a parallel plate capacitor depend on plate area, separation and the dielectric.",
   unit: "electrostatics",
-  chapter: "Unit I · Capacitance",
+  chapter: "Unit I · Electrostatic Potential and Capacitance",
   kind: "theory",
   difficulty: "easy",
   tags: ["capacitor","capacitance","dielectric","energy","electric field"]

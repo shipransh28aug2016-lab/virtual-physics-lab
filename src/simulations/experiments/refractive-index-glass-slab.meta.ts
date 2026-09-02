@@ -9,7 +9,7 @@ export const meta: ExperimentMeta = {
   shortTitle: "Refractive Index of Glass Slab",
   aim: "To determine the refractive index of a glass slab by measuring its real and apparent thickness with a travelling microscope.",
   unit: "practical-b",
-  chapter: "Unit VI · Ray Optics",
+  chapter: "Unit VI · Ray Optics and Optical Instruments",
   kind: "practical",
   difficulty: "easy",
   practicalNo: "B6",

@@ -1,4 +1,5 @@
 import type { EducationPack, ExperimentDefinition, ParamValues } from '@/types/lab';
+import type { ExperimentMeta } from '@/experiments/registry';
 import type { ModelOutput } from '@/components/shell/PhysicsExperiment';
 import { SvgDefs } from '@/components/shell/Viewport';
 import { myopiaCorrection, hypermetropiaCorrection, lensPower } from '@/physics-engine/optics';
@@ -13,11 +14,8 @@ import { BenchBoard } from '@/components/instruments/BenchBoard';
  */
 export interface DefectConfig {
   defect: 'myopia' | 'hypermetropia';
-  id: string;
-  slug: string;
-  title: string;
-  shortTitle: string;
-  aim: string;
+  /** The catalogue entry this simulator is built from. */
+  meta: ExperimentMeta;
 }
 
 const EYE = { cx: 430, cy: 210, rx: 105, ry: 78, retinaX: 528 };
@@ -25,9 +23,10 @@ const EYE = { cx: 430, cy: 210, rx: 105, ry: 78, retinaX: 528 };
 export function makeDefectDefinition(c: DefectConfig): ExperimentDefinition {
   const myopic = c.defect === 'myopia';
   return {
-    id: c.id, slug: c.slug, title: c.title, shortTitle: c.shortTitle, aim: c.aim,
-    unit: 'optics', chapter: 'Unit VI · Ray Optics and Optical Instruments',
-    kind: 'theory', difficulty: 'easy', thumbLabel: c.shortTitle, accent: '#25d0ee',
+    id: c.meta.id, slug: c.meta.slug, title: c.meta.title, shortTitle: c.meta.shortTitle,
+    aim: c.meta.aim, unit: c.meta.unit, chapter: c.meta.chapter, kind: c.meta.kind,
+    difficulty: c.meta.difficulty, practicalNo: c.meta.practicalNo,
+    thumbLabel: c.meta.shortTitle, accent: '#25d0ee',
     controls: [
       myopic
         ? { kind: 'slider', key: 'farPoint', label: 'Far point of the eye', symbol: 'd_f', unit: 'cm', min: 15, max: 200, step: 1, initial: 60, hint: 'The farthest object seen clearly without a lens' }
@@ -272,7 +271,7 @@ export const defectNotebook = (c: DefectConfig) => ({ params: p }: { params: Par
   const obj = num(p, 'obj', myopic ? 150 : 25) / 100;
   const ideal = myopic ? myopiaCorrection(farPoint) : hypermetropiaCorrection(nearPoint);
   return {
-    title: `Observation table — ${c.shortTitle}`,
+    title: `Observation table — ${c.meta.shortTitle}`,
     columns: [
       col('u', 'u', 'cm', 1),
       col('pt', myopic ? 'far point' : 'near point', 'cm', 1),

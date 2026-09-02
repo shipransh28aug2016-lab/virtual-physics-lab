@@ -9,7 +9,7 @@ export const meta: ExperimentMeta = {
   shortTitle: "Myopia",
   aim: "To study the defect of myopia, to locate the image formed by a myopic eye and to determine the power of the correcting lens.",
   unit: "optics",
-  chapter: "Unit VI · Defects of Vision",
+  chapter: "Unit VI · Ray Optics and Optical Instruments",
   kind: "theory",
   difficulty: "easy",
   tags: ["myopia","defect of vision","concave lens","far point","eye"]

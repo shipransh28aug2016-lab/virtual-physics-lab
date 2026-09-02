@@ -8,8 +8,8 @@ export const meta: ExperimentMeta = {
   title: "Interference of Light (Young’s Double Slit)",
   shortTitle: "Double Slit",
   aim: "To study the interference of light using Young’s double slit and to determine the fringe width and the wavelength of the source.",
-  unit: "dual-nature",
-  chapter: "Unit VII · Wave Optics",
+  unit: "optics",
+  chapter: "Unit VI · Wave Optics",
   kind: "theory",
   difficulty: "moderate",
   tags: ["interference","young","double slit","fringe width","coherence"]

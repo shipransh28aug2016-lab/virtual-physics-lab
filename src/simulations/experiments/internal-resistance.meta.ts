@@ -8,7 +8,7 @@ export const meta: ExperimentMeta = {
   title: "Internal Resistance of a Cell (Potentiometer)",
   shortTitle: "Internal Resistance",
   aim: "To determine the internal resistance of a given primary cell using a potentiometer.",
-  unit: "practical-a",
+  unit: "current-electricity",
   chapter: "Unit II · Current Electricity",
   kind: "theory",
   difficulty: "moderate",

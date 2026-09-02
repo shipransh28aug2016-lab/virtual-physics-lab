@@ -18,8 +18,8 @@ export default function SectionPage({ section }: { section: 'a' | 'b' }) {
       title={title}
       lede={
         section === 'a'
-          ? 'Practicals 1–8 from the CBSE Class XII physics list, each with a working apparatus, observation table and graph.'
-          : 'Practicals 9–16 from the CBSE Class XII physics list, with ray-accurate optical bench simulations.'
+          ? 'The six Section A experiments from the CBSE Class XII list, each with a working apparatus, an observation table and a graph.'
+          : 'The nine Section B experiments from the CBSE Class XII list, with ray-accurate optical bench simulations and the diode characteristic.'
       }
       unit={unit}
       items={items}

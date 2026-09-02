@@ -9,7 +9,7 @@ export const meta: ExperimentMeta = {
   shortTitle: "Hypermetropia",
   aim: "To study the defect of hypermetropia, to locate the image formed by a hypermetropic eye and to determine the power of the correcting lens.",
   unit: "optics",
-  chapter: "Unit VI · Defects of Vision",
+  chapter: "Unit VI · Ray Optics and Optical Instruments",
   kind: "theory",
   difficulty: "easy",
   tags: ["hypermetropia","defect of vision","convex lens","near point","eye"]

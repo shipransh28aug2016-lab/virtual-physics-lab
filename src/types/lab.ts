@@ -4,15 +4,17 @@
  * *what* it measures, never *how* it is drawn.
  */
 
+/** The nine CBSE Class XII physics units, plus the two practical sections. */
 export type UnitSlug =
   | 'electrostatics'
   | 'current-electricity'
   | 'magnetism'
   | 'emi-ac'
+  | 'electromagnetic-waves'
   | 'optics'
   | 'dual-nature'
-  | 'modern-physics'
-  | 'chemistry'
+  | 'atoms-nuclei'
+  | 'electronic-devices'
   | 'practical-a'
   | 'practical-b';
 

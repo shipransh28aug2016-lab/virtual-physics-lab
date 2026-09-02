@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { UNITS } from '@/data/units';
+import { THEORY_MARKS, THEORY_UNITS, UNITS } from '@/data/units';
 import { byUnit } from '@/experiments/registry';
 import { CatalogueRail } from '@/components/common/Catalogue';
 import { documentTitle } from '@/app/branding/brand';
@@ -20,8 +20,10 @@ export default function Class12Page() {
             <p className="eyebrow">CBSE · NCERT</p>
             <h1>Class XII physics</h1>
             <p className="muted" style={{ maxWidth: '72ch' }}>
-              Eight units, {UNITS.reduce((a, u) => a + byUnit(u.slug).length, 0)} interactive experiments. Open a
-              unit to see its apparatus list, or jump straight to the practicals from the CBSE list.
+              {THEORY_UNITS.length} theory units worth {THEORY_MARKS} marks, plus the two practical sections
+              examined out of 30 — {UNITS.reduce((a, u) => a + byUnit(u.slug).length, 0)} interactive experiments in
+              all, aligned to the CBSE {BRAND.year} curriculum. Open a unit to see its apparatus list, or jump
+              straight to the practicals from the board list.
             </p>
           </div>
           <div className="page-head-actions">
@@ -37,13 +39,28 @@ export default function Class12Page() {
         <div className="unit-grid">
           {UNITS.map((u) => {
             const list = byUnit(u.slug);
+            const weight = u.marks
+              ? `${u.marks} marks${u.sharesMarksWith?.length ? ' (shared)' : ''}`
+              : '30-mark practical';
+            // A unit of the syllabus with nothing built yet is listed and said
+            // so, rather than quietly left out of the curriculum map.
+            if (list.length === 0) {
+              return (
+                <div key={u.slug} className="unit-card is-empty" aria-disabled="true">
+                  <em>{u.ncert}</em>
+                  <b>{u.label}</b>
+                  <span>{u.description}</span>
+                  <span className="unit-card-foot is-pending">no simulators yet · {weight}</span>
+                </div>
+              );
+            }
             return (
               <Link key={u.slug} to={u.href} className="unit-card">
                 <em>{u.ncert}</em>
                 <b>{u.label}</b>
                 <span>{u.description}</span>
-                <span style={{ color: 'var(--primary)', fontFamily: 'var(--font-mono)', fontSize: '0.74rem' }}>
-                  {list.length} experiments →
+                <span className="unit-card-foot">
+                  {list.length} experiments · {weight} →
                 </span>
               </Link>
             );

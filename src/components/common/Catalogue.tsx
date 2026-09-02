@@ -56,7 +56,7 @@ export function CatalogueRail({ activeUnit }: { activeUnit?: UnitSlug | 'all' })
         <Icons.Atom width={14} height={14} /> All experiments
         <b>{EXPERIMENTS.length}</b>
       </NavLink>
-      {UNITS.map((u) => (
+      {UNITS.filter((u) => EXPERIMENTS.some((e) => e.meta.unit === u.slug)).map((u) => (
         <NavLink
           key={u.slug}
           to={u.href}

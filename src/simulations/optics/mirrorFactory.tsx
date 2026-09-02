@@ -1,4 +1,5 @@
 import type { EducationPack, ExperimentDefinition, ObservationRow, ParamValues } from '@/types/lab';
+import type { ExperimentMeta } from '@/experiments/registry';
 import type { ModelOutput } from '@/components/shell/PhysicsExperiment';
 import { mirrorImage } from '@/physics-engine/optics';
 import {
@@ -21,27 +22,23 @@ import { formatFixed } from '@/utils/format';
  */
 export interface MirrorConfig {
   concave: boolean;
-  id: string;
-  slug: string;
-  title: string;
-  shortTitle: string;
-  aim: string;
-  practicalNo?: string;
+  /** The catalogue entry this simulator is built from. */
+  meta: ExperimentMeta;
 }
 
 export function makeMirrorDefinition(config: MirrorConfig): ExperimentDefinition {
   return {
-    id: config.id,
-    slug: config.slug,
-    title: config.title,
-    shortTitle: config.shortTitle,
-    aim: config.aim,
-    unit: config.concave ? 'practical-b' : 'practical-b',
-    chapter: 'Unit VI · Ray Optics',
-    kind: 'practical',
-    difficulty: 'moderate',
-    practicalNo: config.practicalNo,
-    thumbLabel: config.shortTitle,
+    id: config.meta.id,
+    slug: config.meta.slug,
+    title: config.meta.title,
+    shortTitle: config.meta.shortTitle,
+    aim: config.meta.aim,
+    unit: config.meta.unit,
+    chapter: config.meta.chapter,
+    kind: config.meta.kind,
+    difficulty: config.meta.difficulty,
+    practicalNo: config.meta.practicalNo,
+    thumbLabel: config.meta.shortTitle,
     accent: '#ffd257',
     controls: [
       {
@@ -323,7 +320,7 @@ export const mirrorNotebook = (config: MirrorConfig) => {
     const hCm = num(p, 'height', 1.5);
     const img = mirrorImage(uCm / 100, rCm / 100, config.concave, hCm / 100);
     return {
-      title: `Observation table — ${config.shortTitle}`,
+      title: `Observation table — ${config.meta.shortTitle}`,
       columns: [
         col('u', 'u', 'cm', 1),
         col('v', 'v', 'cm', 2),

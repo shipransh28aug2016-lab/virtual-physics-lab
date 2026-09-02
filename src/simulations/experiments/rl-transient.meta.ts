@@ -9,7 +9,7 @@ export const meta: ExperimentMeta = {
   shortTitle: "RL Transient",
   aim: "To study the growth and decay of current in an inductive circuit and to verify that the time constant equals L/R.",
   unit: "emi-ac",
-  chapter: "Unit IV · Inductance",
+  chapter: "Unit IV · Electromagnetic Induction",
   kind: "theory",
   difficulty: "moderate",
   tags: ["rl","inductor","transient","time constant","back emf"]

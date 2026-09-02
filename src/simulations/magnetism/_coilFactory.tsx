@@ -1,4 +1,5 @@
 import type { EducationPack, ExperimentDefinition, ParamValues } from '@/types/lab';
+import type { ExperimentMeta } from '@/experiments/registry';
 import type { ModelOutput } from '@/components/shell/PhysicsExperiment';
 import { SvgDefs } from '@/components/shell/Viewport';
 import { SolenoidSvg, CoilLoop, Rheostat, BatteryCell, Switch } from '@/components/instruments/Instruments';
@@ -17,11 +18,12 @@ import { BenchBoard } from '@/components/instruments/BenchBoard';
  */
 export interface CoilConfig {
   mode: 'solenoid' | 'helmholtz' | 'anti-helmholtz';
-  id: string;
-  slug: string;
-  title: string;
-  shortTitle: string;
-  aim: string;
+  /**
+   * The catalogue entry this simulator is built from. Taking the listing fields
+   * straight off the meta is what stops the definition drifting away from the
+   * unit and chapter the catalogue advertises.
+   */
+  meta: ExperimentMeta;
 }
 
 const TURNS = 200;
@@ -61,9 +63,10 @@ export function fieldAt(
 
 export function makeCoilDefinition(c: CoilConfig): ExperimentDefinition {
   return {
-    id: c.id, slug: c.slug, title: c.title, shortTitle: c.shortTitle, aim: c.aim,
-    unit: 'emi-ac', chapter: 'Unit III · Magnetic Field of Coils', kind: 'theory',
-    difficulty: c.mode === 'solenoid' ? 'easy' : 'moderate', thumbLabel: c.shortTitle, accent: '#45d68b',
+    id: c.meta.id, slug: c.meta.slug, title: c.meta.title, shortTitle: c.meta.shortTitle,
+    aim: c.meta.aim, unit: c.meta.unit, chapter: c.meta.chapter, kind: c.meta.kind,
+    difficulty: c.meta.difficulty, practicalNo: c.meta.practicalNo,
+    thumbLabel: c.meta.shortTitle, accent: '#45d68b',
     controls: [
       { kind: 'slider', key: 'current', label: 'Coil current', symbol: 'I', unit: 'A', min: 0.1, max: 10, step: 0.1, initial: 2, precision: 1 },
       { kind: 'slider', key: 'radius', label: 'Coil radius', symbol: 'R', unit: 'cm', min: 2, max: 30, step: 0.5, initial: c.mode === 'solenoid' ? 5 : 10, precision: 1 },
@@ -180,7 +183,7 @@ export function makeCoilStage(c: CoilConfig) {
           </g>
         ) : null}
         <text x={400} y={76} textAnchor="middle" fontSize={13} fill="#eaf1f8" fontWeight={600}>
-          {c.title}
+          {c.meta.title}
         </text>
         <text x={400} y={296} textAnchor="middle" fontSize={10.5} fill="#5e7189">
           {c.mode === 'solenoid'
@@ -303,7 +306,7 @@ export const coilNotebook = (c: CoilConfig) => ({ params: p }: { params: ParamVa
   const sep = c.mode === 'solenoid' ? undefined : length;
     const centre = fieldAt(c.mode, current, radius, 0, length, sep);
   return {
-    title: `Observation table — ${c.shortTitle}`,
+    title: `Observation table — ${c.meta.shortTitle}`,
     columns: [
       col('x', 'x', 'cm', 1),
       col('b', 'B', 'gauss', 4, true),

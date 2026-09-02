@@ -9,7 +9,7 @@ export const meta: ExperimentMeta = {
   shortTitle: "Ammeter & Voltmeter",
   aim: "To convert the given galvanometer of known resistance and figure of merit into an ammeter and a voltmeter of desired range and to verify the conversion.",
   unit: "practical-a",
-  chapter: "Unit III · Moving Coil Galvanometer",
+  chapter: "Unit III · Moving Charges and Magnetism",
   kind: "practical",
   difficulty: "moderate",
   practicalNo: "A5",

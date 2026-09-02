@@ -9,7 +9,7 @@ export const meta: ExperimentMeta = {
   shortTitle: "Total Internal Reflection",
   aim: "To study total internal reflection, measure the critical angle of a medium and see how it makes optical fibres and prisms work.",
   unit: "optics",
-  chapter: "Unit VI · Ray Optics",
+  chapter: "Unit VI · Ray Optics and Optical Instruments",
   kind: "theory",
   difficulty: "easy",
   tags: ["tir","critical angle","optical fibre","prism","refraction"]

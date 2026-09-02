@@ -9,7 +9,7 @@ export const meta: ExperimentMeta = {
   shortTitle: "Telescope",
   aim: "To study the formation of the image in an astronomical telescope and to determine its magnifying power and tube length.",
   unit: "optics",
-  chapter: "Unit VI · Optical Instruments",
+  chapter: "Unit VI · Ray Optics and Optical Instruments",
   kind: "theory",
   difficulty: "moderate",
   tags: ["telescope","magnification","objective","eyepiece","normal adjustment"]

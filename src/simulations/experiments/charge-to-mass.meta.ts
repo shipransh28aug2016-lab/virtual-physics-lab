@@ -8,8 +8,8 @@ export const meta: ExperimentMeta = {
   title: "Charge-to-Mass Ratio of the Electron (Thomson Method)",
   shortTitle: "Charge-to-Mass Ratio",
   aim: "To determine the specific charge e/m of the electron by balancing the electric and magnetic deflections of an electron beam.",
-  unit: "electrostatics",
-  chapter: "Unit I · Moving Charges",
+  unit: "magnetism",
+  chapter: "Unit III · Moving Charges and Magnetism",
   kind: "theory",
   difficulty: "advanced",
   tags: ["thomson","electron","specific charge","deflection","cathode ray"]
