@@ -8,5 +8,5 @@ export const meta: ExperimentMeta = {
   shortTitle: 'Metre Bridge Resistivity',
   aim: 'To find the resistance of a given wire using a metre bridge and hence to determine the resistivity of its material.',
   unit: 'practical-a', chapter: 'Unit II · Current Electricity', kind: 'practical', difficulty: 'moderate',
-  practicalNo: 'A1', tags: ['metre bridge', 'resistivity', 'wheatstone bridge', 'null deflection']
+  practicalNo: 'A2', tags: ['metre bridge', 'resistivity', 'wheatstone bridge', 'null deflection']
 };
