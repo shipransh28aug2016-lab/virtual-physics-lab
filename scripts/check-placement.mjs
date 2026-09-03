@@ -10,7 +10,9 @@
  *   · frames stay smooth while a control is swept
  *
  *   node scripts/check-placement.mjs            # audits dist/ over http
- *   node scripts/check-placement.mjs --portable # audits the single file over file://
+ *   node scripts/check-placement.mjs --portable # audits the shipped index.html
+ *                                               # over file://, exactly as a
+ *                                               # student opens it off disk
  */
 import { chromium } from 'playwright';
 import { createServer } from 'node:http';
@@ -79,8 +81,10 @@ const browser = await chromium.launch({
 });
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
 
+// The portable target audits the file at the repo root, because that is the one
+// people actually double-click.
 const base = PORTABLE
-  ? `${pathToFileURL(join(ROOT, 'portable/virtual-physics-lab.html')).href}#`
+  ? `${pathToFileURL(join(ROOT, 'index.html')).href}#`
   : `http://localhost:${PORT}`;
 
 const list = await catalogue();

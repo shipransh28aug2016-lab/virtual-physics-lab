@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en" data-motion="on">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#070b12" />
+    <meta
+      name="description"
+      content="Virtual Physics Lab — interactive CBSE Class XII physics simulations with real numerical models, instruments, graphs and a virtual lab notebook."
+    />
+    <title>Virtual Physics Lab — Interactive CBSE Class XII Physics</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230d2531'/%3E%3Ctext x='16' y='21' font-family='monospace' font-size='12' font-weight='700' fill='%2325d0ee' text-anchor='middle'%3EVP%3C/text%3E%3C/svg%3E"
+    />
+    <style>
+      /* Inline so the boot state and the page background are painted before any
+         stylesheet loads — no white flash while the bundle is parsed. */
+      html, body { height: 100%; margin: 0; background: #0a0e15; color: #eaf1f8; }
+      body { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+      .boot-note {
+        display: grid;
+        gap: 6px;
+        place-content: center;
+        min-height: 100vh;
+        text-align: center;
+        padding: 24px;
+      }
+      .boot-note b { font-size: 1.05rem; letter-spacing: -0.01em; }
+      .boot-note span { color: #8497ad; font-size: 0.9rem; }
+    </style>
+  </head>
+  <body>
+    <div id="root">
+      <!-- Replaced the moment React mounts; visible only while the bundle parses. -->
+      <div class="boot-note" id="boot">
+        <b>Virtual Physics Lab</b>
+        <span>Setting up the bench…</span>
+      </div>
+    </div>
+    <noscript>
+      <div class="boot-note">
+        <b>This laboratory needs JavaScript.</b>
+        <span>Every apparatus is a live simulation, so the physics has to run in your browser.</span>
+      </div>
+    </noscript>
+    <script type="module" src="./entry.ts"></script>
+  </body>
+</html>

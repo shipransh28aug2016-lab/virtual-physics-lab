@@ -4,16 +4,25 @@
  * `file://` with no server and no network: every stylesheet and every module
  * is embedded, and the app falls back to a hash router off the file protocol.
  *
- *   npm run build && node scripts/portable.mjs
+ *   npm run build:portable
+ *
+ * The result is written twice, to the same bytes:
+ *
+ *   index.html                        ← the repo root, so the file a student
+ *                                       double-clicks is the whole laboratory
+ *   portable/virtual-physics-lab.html ← a named copy to hand out or attach
+ *
+ * The Vite template that produces it lives in `app/index.html`, so building
+ * never overwrites the source it was built from.
  */
 import { readFile, readdir, writeFile, mkdir, stat } from 'node:fs/promises';
-import { join, dirname } from 'node:path';
+import { join, dirname, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const DIST = join(ROOT, 'dist-portable');
 const OUT_DIR = join(ROOT, 'portable');
-const OUT = join(OUT_DIR, 'virtual-physics-lab.html');
+const OUTPUTS = [join(ROOT, 'index.html'), join(OUT_DIR, 'virtual-physics-lab.html')];
 
 async function exists(p) {
   try {
@@ -61,11 +70,19 @@ html = html.replace(
 html = html.replace(/<link[^>]+fonts\.[^>]+>/g, '');
 
 await mkdir(OUT_DIR, { recursive: true });
-await writeFile(OUT, html, 'utf8');
+for (const out of OUTPUTS) await writeFile(out, html, 'utf8');
 
 const kb = (Buffer.byteLength(html, 'utf8') / 1024).toFixed(0);
-if (/<script[^>]+src=|<link[^>]+href="(?!data:)/.test(html)) {
-  console.error('✗ the portable file still references an external asset.');
+
+// A single external reference would break the file the moment it leaves this
+// machine, so the check is part of the build rather than a later test.
+if (/<script[^>]+\ssrc=|<link[^>]+href="(?!data:)/.test(html)) {
+  console.error('✗ the built file still references an external asset.');
   process.exitCode = 1;
 }
-console.log(`✓ portable/virtual-physics-lab.html · ${kb} kB · fully inlined`);
+if (!html.includes('id="root"')) {
+  console.error('✗ the built file has no mount point.');
+  process.exitCode = 1;
+}
+
+for (const out of OUTPUTS) console.log(`✓ ${relative(ROOT, out)} · ${kb} kB · fully inlined`);

@@ -16,7 +16,9 @@
     "lint": "eslint . --max-warnings=0",
     "catalogue": "node scripts/gen-catalogue.mjs",
     "audit": "node scripts/check-placement.mjs",
-    "audit:portable": "node scripts/check-placement.mjs --portable"
+    "audit:portable": "node scripts/check-placement.mjs --portable",
+    "start": "node server.mjs",
+    "audit:functions": "node scripts/check-functions.mjs"
   },
   "dependencies": {
     "react": "^18.3.1",

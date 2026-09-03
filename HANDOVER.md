@@ -49,6 +49,9 @@ Commands are listed in `README.md`.
 ## 2 · Architecture
 
 ```
+index.html          the shipped laboratory: one self-contained file, committed
+app/index.html      the Vite template it is built from (never overwritten)
+app/entry.ts        the in-root entry that imports src/main
 src/
   physics-engine/   PURE model. No React. SI units internally.
     constants units vectors numerical validation
@@ -116,21 +119,52 @@ bench dock. This is what makes the lab feel like a real bench.
    test instead of a hope — it has already caught a fatal i18n crash, a routing
    bug that kept the previous apparatus mounted, and a metre/centimetre unit
    error in the optics factories.
-6. **Physics anchors + alignment tests.** `physics.test.ts` pins the model to
+6. **Functional audit.** `scripts/check-functions.mjs` drives the shipped
+   `index.html` from `file://` the way a student would: it opens the file,
+   searches the catalogue, moves a control and checks the readings change, checks
+   the operating point and the axis track the model, records a trial, reloads to
+   prove the notebook persisted, clears it, switches language, stars a favourite
+   and reloads again. Nineteen checks; run it with `npm run audit:functions`.
+   Note that a straight line through the origin keeps the same SVG path under
+   auto-scaling, so "the graph responded" is asserted on the operating point,
+   the axis ticks and the marker — not on the path data.
+7. **Physics anchors + alignment tests.** `physics.test.ts` pins the model to
    NCERT/CODATA values (e/m = 1.7588e11, hc = 1240 eV·nm, TIR at 41.81°, prism
    δm, cyclotron f, RC and RL time constants). `catalogue.test.ts` asserts the
    CBSE practical table row by row and that every chapter string names a real
    chapter of the unit it claims. `simulators.test.tsx` mounts all 46.
-7. **Design tokens + Clean Modern Card UI.** Solid surfaces, soft layered
+8. **Design tokens + Clean Modern Card UI.** Solid surfaces, soft layered
    shadows, crisp 1px borders, 16 px radii — no glassmorphism.
-8. **i18n with graceful fallback.** A missing key degrades to the key, never
+9. **i18n with graceful fallback.** A missing key degrades to the key, never
    throws. All 46 experiments carry Devanagari titles and aims.
-9. **Storage abstraction.** `utils/storage` wraps localStorage behind a
+10. **Storage abstraction.** `utils/storage` wraps localStorage behind a
    read/write API that degrades to memory in private mode.
-10. **Portable single-file build.** `VPL_PORTABLE=1` builds with dynamic
+11. **Portable single-file build.** `VPL_PORTABLE=1` builds with dynamic
     imports inlined, so `scripts/portable.mjs` can embed one bundle — a
     `file://` page cannot fetch a lazy chunk, which is why the portable target
-    does not code-split.
+    does not code-split. The result is written to **`index.html` at the repo
+    root** and to `portable/virtual-physics-lab.html`, byte for byte the same.
+
+### Why the entry point is arranged the way it is
+
+`index.html` at the root has to be the *finished* laboratory, because that is
+the file people open off disk. But Vite also needs an HTML template, and if the
+two are the same file every build destroys its own source. So:
+
+- `app/index.html` is the template. Vite's `root` is `app/`.
+- `app/entry.ts` is a one-line module inside that root which imports
+  `../src/main`. Referencing `../src/main.tsx` from the template directly does
+  work for a build but breaks the dev server's module resolution, which is why
+  the indirection exists — do not "simplify" it away.
+- `scripts/portable.mjs` writes the inlined result to the repo root and to
+  `portable/`.
+
+`src/test/shipped-entry.test.ts` asserts the shipped file is a whole
+application: big enough to contain the bundle, with no external `script src` or
+non-`data:` `href`, carrying the mount point, the design tokens and the
+load-bearing class names. It exists because `index.html` once regressed into a
+bare template whose only script pointed at `/src/main.tsx` — which resolves to
+nothing on a filesystem, so the file opened to a blank screen.
 
 ---
 
@@ -151,6 +185,10 @@ bench dock. This is what makes the lab feel like a real bench.
 **Invariants the audits rely on (do not rename):** `svg.svg-lab`,
 `.stage-ctl[role="slider"]`, `.readout`, `path.chart-series`, `.stage-bench`,
 `.stage-pin`, `.viewport-stage`.
+
+**Never point the shipped `index.html` at `/src/main.tsx`.** That is a
+build-time path; on a filesystem it resolves to nothing and the page opens
+blank. The template lives in `app/`.
 
 **Routes must stay keyed.** `AppRoutes` gives each experiment route
 `key={mod.meta.slug}`. Without it React reconciles one experiment page into the
@@ -240,7 +278,8 @@ detents and needle easing (respecting reduced motion).
 - Bilingual EN ⇄ NCERT Devanagari, 46/46 translated, persisted, fallback-safe.
 - **491 tests pass**; `tsc` and `eslint --max-warnings=0` are clean.
 - Placement audit: **46/46 · 0 defects · 0 overlaps**, over http and `file://`.
-- Portable single file ≈ 792 kB, verified to run from `file://`.
+- **`index.html` at the repo root is the laboratory** — ≈ 793 kB, self-contained,
+  verified to open from `file://` and run all 46 routes with no console errors.
 
 ### A note on how this repo arrived
 

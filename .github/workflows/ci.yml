@@ -15,14 +15,27 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
+
       - run: npm run typecheck
       - run: npm run lint
       - run: node scripts/gen-catalogue.mjs --check
-      - run: npm test
+
+      # Build first, so the tests below check the artefact this commit produces
+      # rather than whatever happened to be committed.
       - run: npm run build
       - run: npm run build:portable
 
+      - name: The committed index.html must match what the source builds
+        run: |
+          if ! git diff --exit-code -- index.html portable/virtual-physics-lab.html; then
+            echo "::error::index.html is stale. Run 'npm run build:portable' and commit the result."
+            exit 1
+          fi
+
+      - run: npm test
+
       # The placement audit needs a real browser.
       - run: npx playwright install --with-deps chromium
-      - run: npm run audit
-      - run: npm run audit:portable
+      - run: npm run audit            # placement over http
+      - run: npm run audit:portable   # placement on the shipped index.html
+      - run: npm run audit:functions  # the lab actually works from file://
