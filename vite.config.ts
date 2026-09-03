@@ -12,6 +12,7 @@ const PORTABLE = process.env.VPL_PORTABLE === '1';
 
 export default defineConfig({
   plugins: [react()],
+  base: '/virtual-physics-lab/',
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) }
   },
