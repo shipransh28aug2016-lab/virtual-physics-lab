@@ -1,0 +1,44 @@
+{
+  "name": "virtual-physics-lab",
+  "private": true,
+  "version": "2.0.0",
+  "type": "module",
+  "description": "Virtual Physics Lab — interactive CBSE Class XII physics simulators aligned to the 2026-27 curriculum.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "build:portable": "VPL_PORTABLE=1 vite build && node scripts/portable.mjs",
+    "preview": "vite preview",
+    "serve": "node server.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --max-warnings=0",
+    "catalogue": "node scripts/gen-catalogue.mjs",
+    "audit": "node scripts/check-placement.mjs",
+    "audit:portable": "node scripts/check-placement.mjs --portable"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.30.0"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.1.0",
+    "@testing-library/user-event": "^14.5.2",
+    "@types/node": "^26.4.1",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@typescript-eslint/eslint-plugin": "^8.20.0",
+    "@typescript-eslint/parser": "^8.20.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "eslint": "^8.57.1",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "jsdom": "^25.0.1",
+    "playwright": "^1.62.1",
+    "typescript": "^5.7.3",
+    "vite": "^5.4.11",
+    "vitest": "^2.1.8"
+  }
+}
