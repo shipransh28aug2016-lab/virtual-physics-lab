@@ -8,6 +8,7 @@ on:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -20,9 +21,14 @@ jobs:
       - run: node scripts/gen-catalogue.mjs --check
       - run: npm test
       - run: npm run build
+        timeout-minutes: 5
       - run: npm run build:portable
+        timeout-minutes: 5
 
       # The placement audit needs a real browser.
       - run: npx playwright install --with-deps chromium
+        timeout-minutes: 5
       - run: npm run audit
+        timeout-minutes: 5
       - run: npm run audit:portable
+        timeout-minutes: 5

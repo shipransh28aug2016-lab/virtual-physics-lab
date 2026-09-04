@@ -54,7 +54,7 @@
   animation: vpl-spin 0.8s linear infinite;
 }
 @keyframes vpl-spin { to { transform: rotate(360deg); } }
-[data-motion='off'] .spinner,
+[data-motion='off'] .spinner { animation: none; }
 @media (prefers-reduced-motion: reduce) { .spinner { animation: none; } }
 
 /* ── catalogue ──────────────────────────────────────────────────────────── */
