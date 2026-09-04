@@ -8,7 +8,13 @@ import '@/styles/lab-scene.css';
 
 // The portable single-file build runs from file://, where only a hash router
 // can resolve routes. The same route table serves both.
-const Router = window.location.protocol === 'file:' ? HashRouter : BrowserRouter;
+const isFile = window.location.protocol === 'file:';
+const Router = isFile ? HashRouter : BrowserRouter;
+// The site is served under a subpath (GitHub Pages project page). Without this,
+// a direct link or a page refresh on any route but the home page 404s, because
+// BrowserRouter otherwise matches routes against the full pathname including
+// that subpath. The portable file has no subpath to strip.
+const basename = isFile ? undefined : import.meta.env.BASE_URL;
 
 const host = document.getElementById('root');
 if (!host) throw new Error('Root element #root is missing from index.html');
@@ -16,7 +22,7 @@ if (!host) throw new Error('Root element #root is missing from index.html');
 createRoot(host).render(
   <StrictMode>
     <PreferencesProvider>
-      <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <Router basename={basename} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <AppRoutes />
       </Router>
     </PreferencesProvider>

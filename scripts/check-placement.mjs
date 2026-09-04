@@ -29,10 +29,20 @@ const TYPES = {
   '.svg': 'image/svg+xml'
 };
 
+// Vite is configured with this base path for the deployed (GitHub Pages) site,
+// so every built asset URL carries it — the local server below has to strip
+// it the same way a Pages deployment's own path would, or every asset 404s
+// and nothing ever renders.
+const BASE_PATH = '/virtual-physics-lab';
+
 function serve(root) {
   const server = createServer(async (req, res) => {
     const url = new URL(req.url ?? '/', 'http://localhost');
-    let file = join(root, normalize(decodeURIComponent(url.pathname)).replace(/^(\.\.[/\\])+/, ''));
+    let pathname = decodeURIComponent(url.pathname);
+    if (pathname === BASE_PATH || pathname.startsWith(`${BASE_PATH}/`)) {
+      pathname = pathname.slice(BASE_PATH.length) || '/';
+    }
+    let file = join(root, normalize(pathname).replace(/^(\.\.[/\\])+/, ''));
     try {
       const info = await stat(file);
       if (info.isDirectory()) file = join(file, 'index.html');
@@ -79,14 +89,22 @@ const browser = await chromium.launch({
 });
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
 
+// The deployed site sits under BASE_PATH (a GitHub Pages project page) and the
+// app's router now has a matching basename, so routes only resolve under that
+// prefix — mirror it here, the same way a real visitor's URL would carry it.
 const base = PORTABLE
   ? `${pathToFileURL(join(ROOT, 'portable/virtual-physics-lab.html')).href}#`
-  : `http://localhost:${PORT}`;
+  : `http://localhost:${PORT}${BASE_PATH}`;
 
 const list = await catalogue();
 let audited = 0;
 let overlaps = 0;
 
+// Everything below runs a real browser and a local server; either can hang on
+// a single flaky route. Without a finally block here, an uncaught rejection
+// leaves both processes running and the npm script never exits — which is
+// what actually made CI time out, not the audit itself being slow.
+try {
 for (const { slug, title } of list) {
   // Off file:// the URL differs only in its hash, and a same-document goto
   // leaves the previous route mounted; reload so each experiment is measured
@@ -227,33 +245,34 @@ for (const { slug, title } of list) {
 // Routing has to work by clicking too, not only by loading a URL: a keyless
 // route would reconcile into the previous page and keep its apparatus.
 if (list.length > 1) {
-  await page.goto(`${base}/simulators/physics/${list[0].slug}`, { waitUntil: 'networkidle' });
-  if (PORTABLE) await page.reload({ waitUntil: 'networkidle' });
-  await page.waitForSelector('svg.svg-lab');
-  // The first link in that nav goes back to the unit index; take a sibling
-  // experiment instead, which is the navigation a student actually makes.
-  const link = page
-    .locator('nav[aria-label="More experiments in this unit"] a[href*="/simulators/physics/"]')
-    .first();
-  if ((await link.count()) > 0) {
-    await link.click();
-    try {
+  try {
+    await page.goto(`${base}/simulators/physics/${list[0].slug}`, { waitUntil: 'networkidle' });
+    if (PORTABLE) await page.reload({ waitUntil: 'networkidle' });
+    await page.waitForSelector('svg.svg-lab', { timeout: 15_000 });
+    // The first link in that nav goes back to the unit index; take a sibling
+    // experiment instead, which is the navigation a student actually makes.
+    const link = page
+      .locator('nav[aria-label="More experiments in this unit"] a[href*="/simulators/physics/"]')
+      .first();
+    if ((await link.count()) > 0) {
+      await link.click();
       await page.waitForFunction(
         (from) => document.querySelector('.sim-head-main h1')?.textContent?.trim() !== from,
         list[0].title,
         { timeout: 10_000 }
       );
       await page.waitForSelector('svg.svg-lab', { timeout: 10_000 });
-    } catch {
-      note('routing', 'clicking through to another experiment did not swap the page');
+    } else {
+      note('routing', 'no in-unit navigation links were rendered');
     }
-  } else {
-    note('routing', 'no in-unit navigation links were rendered');
+  } catch {
+    note('routing', 'clicking through to another experiment did not swap the page');
   }
 }
-
-await browser.close();
-server?.close();
+} finally {
+  await browser.close();
+  server?.close();
+}
 
 console.log(`${audited}/${list.length} audited · ${defects.length} defects · ${overlaps} overlaps · ${PORTABLE ? 'file://' : 'http'}`);
 for (const d of defects) console.error(`  ✗ ${d}`);
