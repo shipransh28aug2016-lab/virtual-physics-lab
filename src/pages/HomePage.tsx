@@ -105,16 +105,30 @@ export default function HomePage() {
             </div>
           </div>
           <div className="unit-grid">
-            {UNITS.map((u) => (
-              <Link key={u.slug} to={u.href} className="unit-card">
-                <em>{u.ncert}</em>
-                <b>{u.label}</b>
-                <span>{u.description}</span>
-                <span style={{ color: 'var(--primary)', fontFamily: 'var(--font-mono)', fontSize: '0.74rem' }}>
-                  {byUnit(u.slug).length} experiments →
-                </span>
-              </Link>
-            ))}
+            {UNITS.map((u) => {
+              const count = byUnit(u.slug).length;
+              const empty = count === 0;
+              return (
+                <Link
+                  key={u.slug}
+                  to={u.href}
+                  className={empty ? 'unit-card is-empty' : 'unit-card'}
+                  aria-disabled={empty || undefined}
+                >
+                  <span className="unit-badge" style={{ background: u.accent, color: u.accent }} aria-hidden="true" />
+                  <em>{u.ncert}</em>
+                  <b>{u.label}</b>
+                  <span>{u.description}</span>
+                  {empty ? (
+                    <span className="unit-card-foot is-pending">Coming soon</span>
+                  ) : (
+                    <span style={{ color: 'var(--primary)', fontFamily: 'var(--font-mono)', fontSize: '0.74rem' }}>
+                      {count} experiments →
+                    </span>
+                  )}
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>

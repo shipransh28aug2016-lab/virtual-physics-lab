@@ -47,15 +47,17 @@ export default function Class12Page() {
             if (list.length === 0) {
               return (
                 <div key={u.slug} className="unit-card is-empty" aria-disabled="true">
+                  <span className="unit-badge" style={{ background: u.accent, color: u.accent }} aria-hidden="true" />
                   <em>{u.ncert}</em>
                   <b>{u.label}</b>
                   <span>{u.description}</span>
-                  <span className="unit-card-foot is-pending">no simulators yet · {weight}</span>
+                  <span className="unit-card-foot is-pending">Coming soon · {weight}</span>
                 </div>
               );
             }
             return (
               <Link key={u.slug} to={u.href} className="unit-card">
+                <span className="unit-badge" style={{ background: u.accent, color: u.accent }} aria-hidden="true" />
                 <em>{u.ncert}</em>
                 <b>{u.label}</b>
                 <span>{u.description}</span>

@@ -94,8 +94,11 @@ const UNIT_NUMBERS: Record<string, string[]> = {
   'current-electricity': ['II'],
   magnetism: ['III'],
   'emi-ac': ['IV'],
+  'electromagnetic-waves': ['V'],
   optics: ['VI'],
   'dual-nature': ['VII'],
+  'atoms-nuclei': ['VIII'],
+  'electronic-devices': ['IX'],
   // The practical sections draw on whichever unit each experiment belongs to.
   'practical-a': ['II', 'III', 'IV'],
   'practical-b': ['VI', 'IX']
