@@ -11,9 +11,31 @@ interface Placed {
 
 const liveClass = (live?: boolean) => `lead${live ? ' lead-live' : ''}`;
 
-/** A wire lead between two points, brighter when current flows. */
-export function Lead({ d, live }: { d: string; live?: boolean }) {
-  return <path d={d} className={liveClass(live)} fill="none" />;
+/**
+ * A wire lead between two points, brighter when current flows. When `flow`
+ * is given, a stream of charge-carrier dots animates along the wire — the
+ * animation duration comes from the model's current magnitude, so a heavier
+ * current visibly moves faster, and it reverses with `flow < 0`.
+ */
+export function Lead({ d, live, flow, width }: { d: string; live?: boolean; flow?: number; width?: number }) {
+  const animating = live && flow !== undefined && Math.abs(flow) > 1e-9;
+  const period = animating ? Math.max(0.25, Math.min(3, 1.6 / Math.sqrt(Math.abs(flow!)))) : undefined;
+  return (
+    <>
+      <path d={d} className={liveClass(live)} fill="none" strokeWidth={width} />
+      {animating ? (
+        <path
+          d={d}
+          className="lead-flow"
+          fill="none"
+          style={{
+            animationDuration: `${period}s`,
+            animationDirection: flow! < 0 ? 'reverse' : 'normal'
+          }}
+        />
+      ) : null}
+    </>
+  );
 }
 
 /* ── meters ─────────────────────────────────────────────────────────────── */
@@ -46,7 +68,6 @@ export function MeterFace({
   const sweep = zeroCentre ? 100 : 110;
   const clamped = Math.max(zeroCentre ? -1 : 0, Math.min(1, deflection));
   const angle = zeroCentre ? clamped * (sweep / 2) : -sweep / 2 + clamped * sweep;
-  const rad = degToRad(angle - 90);
 
   const ticks = Array.from({ length: 11 }, (_, i) => {
     const f = i / 10;
@@ -58,20 +79,28 @@ export function MeterFace({
   return (
     <g transform={`translate(${x} ${y}) scale(${scale})`} className="meter">
       <circle r={R + 9} fill="url(#lab-metal)" stroke="#2c3a4b" strokeWidth={1.2} />
+      <circle cx={-R * 0.5} cy={-R * 0.5} r={3.2} fill="#0c141d" stroke="#4a5b6e" strokeWidth={0.8} />
+      <circle cx={R * 0.5} cy={-R * 0.5} r={3.2} fill="#0c141d" stroke="#4a5b6e" strokeWidth={0.8} />
       <circle r={R + 3} fill="url(#lab-dial)" stroke="#9fb0c2" strokeWidth={1} />
       {ticks.map((t, i) => (
         <line key={i} x1={t.x1} y1={t.y1} x2={t.x2} y2={t.y2} stroke={t.major ? '#1c2836' : '#66788c'} strokeWidth={t.major ? 1.6 : 0.9} />
       ))}
-      <line
-        x1={0}
-        y1={0}
-        x2={Math.cos(rad) * (R - 8)}
-        y2={Math.sin(rad) * (R - 8)}
-        stroke="#c0392b"
-        strokeWidth={2}
-        strokeLinecap="round"
-      />
+      {/* the needle carries its own CSS transition, so it settles onto a new
+          reading with a damped swing instead of jumping — a real moving-coil
+          meter never snaps. */}
+      <g className="meter-needle" style={{ transform: `rotate(${angle}deg)` }}>
+        <line x1={0} y1={0} x2={0} y2={-(R - 8)} stroke="#c0392b" strokeWidth={2} strokeLinecap="round" />
+      </g>
       <circle r={3.4} fill="#1c2836" className="stage-pin" />
+      {/* a soft diagonal glass highlight over the whole dial */}
+      <path
+        d={`M ${-(R + 3) * 0.7} ${-(R + 3) * 0.55} A ${R + 3} ${R + 3} 0 0 1 ${(R + 3) * 0.15} ${-(R + 3) * 0.98}`}
+        fill="none"
+        stroke="#ffffff"
+        strokeWidth={6}
+        strokeLinecap="round"
+        opacity={0.16}
+      />
       <text y={-14} textAnchor="middle" fontSize={15} fontWeight={700} fill="#1c2836">
         {symbol}
       </text>
