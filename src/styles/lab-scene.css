@@ -348,6 +348,24 @@
 .svg-lab { display: block; width: 100%; height: auto; }
 .lead { stroke: var(--wire); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; fill: none; }
 .lead-live { stroke: var(--primary); }
+/* Charge-carrier dots streaming along a live wire — duration is set inline
+   per-lead from the model's current magnitude. */
+.lead-flow {
+  stroke: #eaf8ff;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 0.5 13;
+  animation-name: vpl-flow;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+@keyframes vpl-flow { to { stroke-dashoffset: -27; } }
+@media (prefers-reduced-motion: reduce) { .lead-flow { animation: none; opacity: 0; } }
+
+/* The needle rotates by CSS transform so a reading change swings instead of
+   jumping, like a real moving-coil meter settling. */
+.meter-needle { transition: transform 260ms cubic-bezier(0.34, 1.2, 0.4, 1); transform-origin: 0 0; }
+@media (prefers-reduced-motion: reduce) { .meter-needle { transition: none; } }
 .dim-line { stroke: var(--line-3); stroke-width: 1; stroke-dasharray: 4 4; }
 .normal-line { stroke: var(--ink-4); stroke-width: 1; stroke-dasharray: 3 4; }
 .measure-text { fill: var(--ink-3); }

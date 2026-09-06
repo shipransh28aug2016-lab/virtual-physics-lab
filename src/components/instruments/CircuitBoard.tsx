@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { BenchBoard } from '@/components/instruments/BenchBoard';
-import { BatteryCell, MeterFace, Rheostat, Switch } from '@/components/instruments/Instruments';
+import { BatteryCell, Lead, MeterFace, Rheostat, Switch } from '@/components/instruments/Instruments';
 import { SvgDefs } from '@/components/shell/Viewport';
 
 /** A resistance box with its dial value on the lid. */
@@ -90,7 +90,7 @@ export function SeriesLoop({
     <svg viewBox="0 0 820 470" className="svg-lab" preserveAspectRatio="xMidYMid meet">
       <SvgDefs />
       <BenchBoard x={20} y={100} width={780} height={330} rx={14} />
-      <path d={loop} className={`lead${live ? ' lead-live' : ''}`} fill="none" strokeWidth={2.4} />
+      <Lead d={loop} live={live} flow={live ? current : undefined} width={2.4} />
 
       <BatteryCell x={200} y={200} emf={emf} live={live} label="Cell ε" />
       <Switch x={330} y={200} closed={closed} live={live} label="Key K" />
