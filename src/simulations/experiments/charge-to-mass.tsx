@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { EducationPack, ExperimentDefinition, ParamValues } from '@/types/lab';
 import type { ModelOutput } from '@/components/shell/PhysicsExperiment';
 import { PhysicsExperiment } from '@/components/shell/PhysicsExperiment';
@@ -9,6 +9,9 @@ import { gyroradius } from '@/physics-engine/magnetism';
 import { formatSI } from '@/utils/format';
 import { num, ro, singleSeriesGraph } from './_shared';
 import { Knob, type StageApi } from '@/components/controls/StageKit';
+import { useRafLoop } from '@/hooks/useAnimation';
+import { useLang, type Lang } from '@/i18n';
+import { Icons } from '@/components/common/Icons';
 
 import { meta } from './charge-to-mass.meta';
 
@@ -76,6 +79,49 @@ const education: EducationPack = {
   resultTemplate: 'The value of e/m obtained from the balance condition agrees with the accepted value within the experimental uncertainty.'
 };
 
+type Localized = { en: string; hi: string };
+
+// On-stage labels, both languages vetted; falls back to English if a key is missing.
+const STAGE_TXT: Record<string, Localized> = {
+  gun: { en: 'e⁻ gun', hi: 'इलेक्ट्रॉन गन' },
+  screen: { en: 'screen', hi: 'पर्दा' },
+  outOfScreen: { en: '(out of screen)', hi: '(पर्दे से बाहर)' },
+  balanced: { en: 'Balanced — electric and magnetic deflections cancel', hi: 'संतुलित — वैद्युत तथा चुम्बकीय विक्षेप परस्पर निरस्त' },
+  deflected: { en: 'Beam deflected — adjust B to restore balance', hi: 'किरण विक्षेपित — संतुलन हेतु B समायोजित करें' },
+  magKnob: { en: 'Magnetic field B — turn the magnet supply', hi: 'चुम्बकीय क्षेत्र B — चुम्बक आपूर्ति घुमाएँ' },
+  live: { en: 'LIVE', hi: 'लाइव' },
+  speak: { en: 'Speak result', hi: 'परिणाम सुनें' },
+  stop: { en: 'Stop speaking', hi: 'बोलना रोकें' }
+};
+const txt = (key: keyof typeof STAGE_TXT, lang: Lang): string => STAGE_TXT[key]?.[lang] ?? STAGE_TXT[key]?.en ?? String(key);
+
+/** Rounds to a few significant figures and speaks it as "m times ten to the power n", legible to any TTS voice. */
+function spokenSci(value: number, digits = 2): string {
+  if (!Number.isFinite(value)) return '—';
+  if (value === 0) return '0';
+  const exp = Math.floor(Math.log10(Math.abs(value)));
+  const mantissa = value / 10 ** exp;
+  return `${mantissa.toFixed(digits)} × 10^${exp}`;
+}
+
+/** Builds the sentence read aloud by the "speak result" control, in the current UI language. */
+function buildSpeech(lang: Lang, vAcc: number, v: number, qmMeasured: number, qmTrue: number, balanced: boolean): string {
+  if (lang === 'hi') {
+    return (
+      `थॉमसन विधि। ${vAcc.toFixed(0)} वोल्ट से त्वरित इलेक्ट्रॉन ${spokenSci(v)} मीटर प्रति सेकंड की चाल से गति करते हैं। ` +
+      (balanced
+        ? `किरण संतुलित है, अतः मापा गया आवेश-द्रव्यमान अनुपात ${spokenSci(qmMeasured)} कूलॉम प्रति किलोग्राम है, जो मानक मान ${spokenSci(qmTrue)} के निकट है।`
+        : `किरण अभी विक्षेपित है। संतुलन प्राप्त करने हेतु चुम्बकीय क्षेत्र B को समायोजित करें।`)
+    );
+  }
+  return (
+    `Thomson method. Electrons accelerated through ${vAcc.toFixed(0)} volts move at ${spokenSci(v)} metres per second. ` +
+    (balanced
+      ? `The beam is balanced, so the measured specific charge is ${spokenSci(qmMeasured)} coulombs per kilogram, close to the accepted ${spokenSci(qmTrue)}.`
+      : `The beam is currently deflected. Adjust the magnetic field to restore balance.`)
+  );
+}
+
 function compute(params: ParamValues): ModelOutput {
   const vAcc = num(params, 'vAcc', 2000);
   const eField = num(params, 'eField', 60) * 1000;
@@ -125,7 +171,37 @@ function compute(params: ParamValues): ModelOutput {
   };
 }
 
+// Beam geometry shared by the path drawer and the electron-flow animation.
+const X0 = 120;
+const X_PLATE0 = 300;
+const X_PLATE1 = 400;
+const X_SCREEN = 700;
+const Y_MID = 240;
+const SCALE = 1400;
+
+/** A point on the (straight → curved → straight) beam at arc-fraction t ∈ [0, 1]. */
+function pointOnBeam(t: number, y1: number, y2: number): { x: number; y: number } {
+  const segs = [X_PLATE0 - X0, X_PLATE1 - X_PLATE0, X_SCREEN - X_PLATE1];
+  const total = segs[0] + segs[1] + segs[2];
+  const d = Math.max(0, Math.min(1, t)) * total;
+  if (d <= segs[0]) return { x: X0 + d, y: Y_MID };
+  if (d <= segs[0] + segs[1]) {
+    const s = (d - segs[0]) / segs[1];
+    const mx = (X_PLATE0 + X_PLATE1) / 2;
+    const my = (Y_MID + y1) / 2;
+    // Point on the quadratic Bézier used for the plate-region curve.
+    const x = (1 - s) * (1 - s) * X_PLATE0 + 2 * (1 - s) * s * mx + s * s * X_PLATE1;
+    const y = (1 - s) * (1 - s) * Y_MID + 2 * (1 - s) * s * my + s * s * y1;
+    return { x, y };
+  }
+  const s = (d - segs[0] - segs[1]) / segs[2];
+  return { x: X_PLATE1 + s * (X_SCREEN - X_PLATE1), y: y1 + s * (y2 - y1) };
+}
+
+const ELECTRON_COUNT = 4;
+
 function Stage({ params, set, control }: StageApi) {
+  const { lang } = useLang();
   const vAcc = num(params, 'vAcc', 2000);
   const eField = num(params, 'eField', 60) * 1000;
   const bField = num(params, 'bField', 1.14) / 1000;
@@ -138,29 +214,44 @@ function Stage({ params, set, control }: StageApi) {
   const yIn = 0.5 * accel * tIn * tIn;
   const slope = (accel * tIn) / v;
   const yScreen = yIn + slope * (screen - length / 2);
+  const balanced = Math.abs(yScreen) < 2e-4;
+
+  const y1 = Y_MID - yIn * SCALE;
+  const y2Clamped = Math.max(30, Math.min(450, Y_MID - yScreen * SCALE));
 
   const beamRef = useRef<SVGPathElement>(null);
   useEffect(() => {
     if (!beamRef.current) return;
-    const x0 = 120;
-    const xPlate0 = 300;
-    const xPlate1 = 400;
-    const xScreen = 700;
-    const scale = 1400;
-    const yMid = 240;
-    const y1 = yMid - yIn * scale;
-    const y2 = yMid - yScreen * scale;
     beamRef.current.setAttribute(
       'd',
-      `M${x0} ${yMid} L${xPlate0} ${yMid} Q${(xPlate0 + xPlate1) / 2} ${(yMid + y1) / 2} ${xPlate1} ${y1} L${xScreen} ${Math.max(30, Math.min(450, y2))}`
+      `M${X0} ${Y_MID} L${X_PLATE0} ${Y_MID} Q${(X_PLATE0 + X_PLATE1) / 2} ${(Y_MID + y1) / 2} ${X_PLATE1} ${y1} L${X_SCREEN} ${y2Clamped}`
     );
-  }, [yIn, yScreen]);
+  }, [y1, y2Clamped]);
+
+  // Real electron transit times are nanoseconds; the loop period is scaled from
+  // the live speed against a reference so a faster beam visibly streams faster,
+  // while staying inside a comfortable, watchable range on screen.
+  const REF_V = 4.5e7;
+  const dotRefs = useRef<(SVGCircleElement | null)[]>([]);
+  useRafLoop((elapsed) => {
+    const period = Math.max(0.5, Math.min(2.6, 1.1 * (REF_V / Math.max(v, 1e5))));
+    for (let i = 0; i < ELECTRON_COUNT; i++) {
+      const phase = i / ELECTRON_COUNT;
+      const frac = ((elapsed / period + phase) % 1 + 1) % 1;
+      const p = pointOnBeam(frac, y1, y2Clamped);
+      const dot = dotRefs.current[i];
+      if (dot) {
+        dot.setAttribute('cx', p.x.toFixed(1));
+        dot.setAttribute('cy', p.y.toFixed(1));
+      }
+    }
+  });
 
   return (
     <svg viewBox="0 0 800 480" className="svg-lab" preserveAspectRatio="xMidYMid meet">
       <SvgDefs />
       <rect x={70} y={205} width={70} height={70} rx={8} fill="url(#lab-case)" stroke="#3a4c60" />
-      <text x={105} y={244} textAnchor="middle" fontSize={10} fill="#8497ad">e⁻ gun</text>
+      <text x={105} y={244} textAnchor="middle" fontSize={10} fill="#8497ad">{txt('gun', lang)}</text>
       <text x={105} y={292} textAnchor="middle" fontSize={10} className="label-mono">{vAcc.toFixed(0)} V</text>
       <rect x={290} y={170} width={120} height={14} rx={3} fill="url(#lab-plate)" stroke="#5c7085" />
       <rect x={290} y={296} width={120} height={14} rx={3} fill="url(#lab-plate)" stroke="#5c7085" />
@@ -183,13 +274,25 @@ function Stage({ params, set, control }: StageApi) {
           ))
         )}
       </g>
-      <text x={555} y={176} textAnchor="middle" fontSize={10} fill="#9d8cff">B = {(bField * 1000).toFixed(2)} mT (out of screen)</text>
+      <text x={555} y={176} textAnchor="middle" fontSize={10} fill="#9d8cff">B = {(bField * 1000).toFixed(2)} mT {txt('outOfScreen', lang)}</text>
       <rect x={696} y={40} width={14} height={400} rx={3} fill="url(#lab-metal)" stroke="#5c7085" />
-      <text x={703} y={32} textAnchor="middle" fontSize={10} fill="#8497ad">screen</text>
+      <text x={703} y={32} textAnchor="middle" fontSize={10} fill="#8497ad">{txt('screen', lang)}</text>
       <line x1={120} y1={240} x2={700} y2={240} className="dim-line" />
-      <path ref={beamRef} d="M120 240 L700 240" fill="none" stroke="#ffd257" strokeWidth={2.6} strokeLinecap="round" style={{ filter: 'drop-shadow(0 0 6px #ffd25788)' }} />
+      <path ref={beamRef} d="M120 240 L700 240" fill="none" stroke="#ffd257" strokeWidth={2.6} strokeLinecap="round" opacity={0.55} style={{ filter: 'drop-shadow(0 0 6px #ffd25788)' }} />
+      {/* A stream of electrons, spaced along the live beam path and re-timed every frame from the true speed v. */}
+      {Array.from({ length: ELECTRON_COUNT }, (_, i) => (
+        <circle
+          key={i}
+          ref={(el) => { dotRefs.current[i] = el; }}
+          cx={X0 + i * ((X_SCREEN - X0) / ELECTRON_COUNT)}
+          cy={Y_MID}
+          r={4.2}
+          fill="#6ee7ff"
+          style={{ filter: 'drop-shadow(0 0 5px #6ee7ffaa)' }}
+        />
+      ))}
       <text x={400} y={56} textAnchor="middle" fontSize={12.5} fill="#eaf1f8" fontWeight={600}>
-        {Math.abs(yScreen) < 2e-4 ? 'Balanced — electric and magnetic deflections cancel' : 'Beam deflected — adjust B to restore balance'}
+        {balanced ? txt('balanced', lang) : txt('deflected', lang)}
       </text>
       {/* The magnet's field is set on the apparatus, beside the deflection region. */}
       <Knob
@@ -199,9 +302,59 @@ function Stage({ params, set, control }: StageApi) {
         x={400}
         y={432}
         radius={19}
-        label="Magnetic field B — turn the magnet supply"
+        label={txt('magKnob', lang)}
       />
         </svg>
+  );
+}
+
+/** Live badge + bilingual "speak the result" control shown in the viewport's top-right corner. */
+function StageOverlay({ vAcc, v, qmMeasured, qmTrue, balanced }: { vAcc: number; v: number; qmMeasured: number; qmTrue: number; balanced: boolean }) {
+  const { lang } = useLang();
+  const [speaking, setSpeaking] = useState(false);
+  const supported = typeof window !== 'undefined' && 'speechSynthesis' in window;
+
+  useEffect(() => () => {
+    if (supported) window.speechSynthesis.cancel();
+  }, [supported]);
+
+  const toggleSpeech = () => {
+    if (!supported) return;
+    if (speaking) {
+      window.speechSynthesis.cancel();
+      setSpeaking(false);
+      return;
+    }
+    const utter = new SpeechSynthesisUtterance(buildSpeech(lang, vAcc, v, qmMeasured, qmTrue, balanced));
+    utter.lang = lang === 'hi' ? 'hi-IN' : 'en-IN';
+    utter.rate = 0.95;
+    utter.onend = () => setSpeaking(false);
+    utter.onerror = () => setSpeaking(false);
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utter);
+    setSpeaking(true);
+  };
+
+  return (
+    <>
+      <span className="view-pill view-pill-live" title={lang === 'hi' ? 'वास्तविक समय में सजीव चित्रण' : 'Animated in real time'}>
+        <Icons.PlayCircle width={13} height={13} />
+        <span className="pulse-dot" />
+        <b>{txt('live', lang)}</b>
+      </span>
+      {supported ? (
+        <button
+          type="button"
+          className={`btn btn-sm btn-icon${speaking ? ' is-speaking' : ''}`}
+          onClick={toggleSpeech}
+          aria-pressed={speaking}
+          aria-label={speaking ? txt('stop', lang) : txt('speak', lang)}
+          title={speaking ? txt('stop', lang) : txt('speak', lang)}
+        >
+          {speaking ? <Icons.SpeakerMute width={15} height={15} /> : <Icons.Speaker width={15} height={15} />}
+        </button>
+      ) : null}
+    </>
   );
 }
 
@@ -210,6 +363,16 @@ export default function ChargeToMassExperiment() {
     <PhysicsExperiment
       definition={definition} education={education} compute={compute}
       renderStage={(api) => <Stage {...api} />}
+      viewportOverlay={(params) => {
+        const vAcc = num(params, 'vAcc', 2000);
+        const eField = num(params, 'eField', 60) * 1000;
+        const bField = num(params, 'bField', 1.6) / 1000;
+        const v = velocityAfterAcceleration(CONSTANTS.E_CHARGE, vAcc, CONSTANTS.M_E);
+        const qmTrue = CONSTANTS.E_CHARGE / CONSTANTS.M_E;
+        const qmMeasured = bField === 0 ? Number.POSITIVE_INFINITY : (eField * eField) / (4 * vAcc * bField * bField);
+        const balanced = Math.abs(qmMeasured - qmTrue) / qmTrue < 0.02;
+        return <StageOverlay vAcc={vAcc} v={v} qmMeasured={qmMeasured} qmTrue={qmTrue} balanced={balanced} />;
+      }}
       notebook={({ params: p }) => {
         const vAcc = num(p, 'vAcc', 2000);
         const eField = num(p, 'eField', 60) * 1000;

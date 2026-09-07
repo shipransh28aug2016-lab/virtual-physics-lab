@@ -118,6 +118,25 @@ export const Icons = {
       <circle cx="12" cy="12" r="9" />
       <path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18" />
     </svg>
+  ),
+  Speaker: (p: IconProps) => (
+    <svg {...base(p)}>
+      <path d="M4 9v6h4l5 4V5L8 9H4Z" />
+      <path d="M16.3 8.7a5 5 0 0 1 0 6.6" />
+      <path d="M19 6a8.5 8.5 0 0 1 0 12" />
+    </svg>
+  ),
+  SpeakerMute: (p: IconProps) => (
+    <svg {...base(p)}>
+      <path d="M4 9v6h4l5 4V5L8 9H4Z" />
+      <path d="m16 9 5 6M21 9l-5 6" />
+    </svg>
+  ),
+  PlayCircle: (p: IconProps) => (
+    <svg {...base(p)}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M10 8.3v7.4l6.2-3.7z" fill="currentColor" stroke="none" />
+    </svg>
   )
 } as const;
 
