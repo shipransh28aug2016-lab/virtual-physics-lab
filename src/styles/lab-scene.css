@@ -206,7 +206,9 @@
 }
 .viewport-stage { display: block; border-radius: var(--r-2); overflow: hidden; background: var(--bg-deep); }
 .viewport-stage > svg { display: block; width: 100%; height: auto; }
-.viewport-overlay { position: absolute; top: var(--sp-4); right: var(--sp-4); display: flex; gap: var(--sp-2); flex-wrap: wrap; }
+/* Above .stage-bench>* (z-index:1) and .stage-pin/.fav-btn (z-index:2), so overlay
+   controls (e.g. the speak/pause buttons) stay clickable over every apparatus. */
+.viewport-overlay { position: absolute; top: var(--sp-4); right: var(--sp-4); z-index: 3; display: flex; gap: var(--sp-2); flex-wrap: wrap; }
 .viewport-caption { font-size: 0.82rem; }
 
 .view-pill {
@@ -224,7 +226,10 @@
 .view-pill i { color: var(--ink-4); font-style: normal; }
 
 /* live/animated indicator + read-aloud control, shared by stage overlays */
+button.view-pill { font: inherit; cursor: pointer; }
 .view-pill.view-pill-live { color: var(--success); border-color: #1e4a34; background: #0c2018; }
+.view-pill.view-pill-live:hover { filter: brightness(1.12); }
+.view-pill.view-pill-live.is-paused { color: var(--ink-3); border-color: var(--line-2); background: var(--surface); }
 .view-pill-live .pulse-dot {
   width: 7px; height: 7px; border-radius: 50%; background: var(--success);
   display: inline-block; animation: vpl-pulse 1.6s ease-in-out infinite;

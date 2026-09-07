@@ -90,6 +90,9 @@ const STAGE_TXT: Record<string, Localized> = {
   deflected: { en: 'Beam deflected — adjust B to restore balance', hi: 'किरण विक्षेपित — संतुलन हेतु B समायोजित करें' },
   magKnob: { en: 'Magnetic field B — turn the magnet supply', hi: 'चुम्बकीय क्षेत्र B — चुम्बक आपूर्ति घुमाएँ' },
   live: { en: 'LIVE', hi: 'लाइव' },
+  paused: { en: 'PAUSED', hi: 'रुका हुआ' },
+  pause: { en: 'Pause animation', hi: 'चित्रण रोकें' },
+  resume: { en: 'Resume animation', hi: 'चित्रण फिर से चलाएँ' },
   speak: { en: 'Speak result', hi: 'परिणाम सुनें' },
   stop: { en: 'Stop speaking', hi: 'बोलना रोकें' }
 };
@@ -200,7 +203,7 @@ function pointOnBeam(t: number, y1: number, y2: number): { x: number; y: number 
 
 const ELECTRON_COUNT = 4;
 
-function Stage({ params, set, control }: StageApi) {
+function Stage({ params, set, control, running }: StageApi & { running: boolean }) {
   const { lang } = useLang();
   const vAcc = num(params, 'vAcc', 2000);
   const eField = num(params, 'eField', 60) * 1000;
@@ -245,7 +248,7 @@ function Stage({ params, set, control }: StageApi) {
         dot.setAttribute('cy', p.y.toFixed(1));
       }
     }
-  });
+  }, running);
 
   return (
     <svg viewBox="0 0 800 480" className="svg-lab" preserveAspectRatio="xMidYMid meet">
@@ -308,8 +311,18 @@ function Stage({ params, set, control }: StageApi) {
   );
 }
 
-/** Live badge + bilingual "speak the result" control shown in the viewport's top-right corner. */
-function StageOverlay({ vAcc, v, qmMeasured, qmTrue, balanced }: { vAcc: number; v: number; qmMeasured: number; qmTrue: number; balanced: boolean }) {
+interface StageOverlayProps {
+  vAcc: number;
+  v: number;
+  qmMeasured: number;
+  qmTrue: number;
+  balanced: boolean;
+  running: boolean;
+  onToggleRunning: () => void;
+}
+
+/** Play/pause + bilingual "speak the result" controls shown in the viewport's top-right corner. */
+function StageOverlay({ vAcc, v, qmMeasured, qmTrue, balanced, running, onToggleRunning }: StageOverlayProps) {
   const { lang } = useLang();
   const [speaking, setSpeaking] = useState(false);
   const supported = typeof window !== 'undefined' && 'speechSynthesis' in window;
@@ -337,11 +350,18 @@ function StageOverlay({ vAcc, v, qmMeasured, qmTrue, balanced }: { vAcc: number;
 
   return (
     <>
-      <span className="view-pill view-pill-live" title={lang === 'hi' ? 'वास्तविक समय में सजीव चित्रण' : 'Animated in real time'}>
-        <Icons.PlayCircle width={13} height={13} />
-        <span className="pulse-dot" />
-        <b>{txt('live', lang)}</b>
-      </span>
+      <button
+        type="button"
+        className={`view-pill view-pill-live${running ? '' : ' is-paused'}`}
+        onClick={onToggleRunning}
+        aria-pressed={running}
+        aria-label={running ? txt('pause', lang) : txt('resume', lang)}
+        title={running ? txt('pause', lang) : txt('resume', lang)}
+      >
+        {running ? <Icons.PauseCircle width={13} height={13} /> : <Icons.PlayCircle width={13} height={13} />}
+        {running ? <span className="pulse-dot" /> : null}
+        <b>{running ? txt('live', lang) : txt('paused', lang)}</b>
+      </button>
       {supported ? (
         <button
           type="button"
@@ -359,10 +379,13 @@ function StageOverlay({ vAcc, v, qmMeasured, qmTrue, balanced }: { vAcc: number;
 }
 
 export default function ChargeToMassExperiment() {
+  // Shared by the stage (drives the raf loop) and the overlay (draws the toggle);
+  // both are rendered from here, so a plain state value is enough to link them.
+  const [running, setRunning] = useState(true);
   return (
     <PhysicsExperiment
       definition={definition} education={education} compute={compute}
-      renderStage={(api) => <Stage {...api} />}
+      renderStage={(api) => <Stage {...api} running={running} />}
       viewportOverlay={(params) => {
         const vAcc = num(params, 'vAcc', 2000);
         const eField = num(params, 'eField', 60) * 1000;
@@ -371,7 +394,12 @@ export default function ChargeToMassExperiment() {
         const qmTrue = CONSTANTS.E_CHARGE / CONSTANTS.M_E;
         const qmMeasured = bField === 0 ? Number.POSITIVE_INFINITY : (eField * eField) / (4 * vAcc * bField * bField);
         const balanced = Math.abs(qmMeasured - qmTrue) / qmTrue < 0.02;
-        return <StageOverlay vAcc={vAcc} v={v} qmMeasured={qmMeasured} qmTrue={qmTrue} balanced={balanced} />;
+        return (
+          <StageOverlay
+            vAcc={vAcc} v={v} qmMeasured={qmMeasured} qmTrue={qmTrue} balanced={balanced}
+            running={running} onToggleRunning={() => setRunning((r) => !r)}
+          />
+        );
       }}
       notebook={({ params: p }) => {
         const vAcc = num(p, 'vAcc', 2000);
