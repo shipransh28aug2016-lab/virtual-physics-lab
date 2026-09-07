@@ -137,6 +137,12 @@ export const Icons = {
       <circle cx="12" cy="12" r="9" />
       <path d="M10 8.3v7.4l6.2-3.7z" fill="currentColor" stroke="none" />
     </svg>
+  ),
+  PauseCircle: (p: IconProps) => (
+    <svg {...base(p)}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M10 8.5v7M14 8.5v7" />
+    </svg>
   )
 } as const;
 
