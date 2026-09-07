@@ -223,6 +223,23 @@
 .view-pill b { color: var(--ink-4); font-weight: 600; }
 .view-pill i { color: var(--ink-4); font-style: normal; }
 
+/* live/animated indicator + read-aloud control, shared by stage overlays */
+.view-pill.view-pill-live { color: var(--success); border-color: #1e4a34; background: #0c2018; }
+.view-pill-live .pulse-dot {
+  width: 7px; height: 7px; border-radius: 50%; background: var(--success);
+  display: inline-block; animation: vpl-pulse 1.6s ease-in-out infinite;
+}
+@keyframes vpl-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 #45d68b66; }
+  50% { box-shadow: 0 0 0 5px #45d68b00; }
+}
+.btn-icon.is-speaking { color: var(--primary); border-color: var(--primary-2); animation: vpl-pulse 1.1s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .view-pill-live .pulse-dot, .btn-icon.is-speaking { animation: none; }
+}
+body[data-motion="off"] .view-pill-live .pulse-dot,
+body[data-motion="off"] .btn-icon.is-speaking { animation: none; }
+
 /* ── measurements ───────────────────────────────────────────────────────── */
 
 .readout-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: var(--sp-2); }
