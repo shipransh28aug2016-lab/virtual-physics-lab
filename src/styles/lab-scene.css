@@ -447,3 +447,30 @@ body[data-motion="off"] .btn-icon.is-speaking { animation: none; }
 }
 .unit-card-foot.is-pending { color: var(--ink-4); }
 .unit-card.is-empty { opacity: 0.62; cursor: default; }
+
+/* ── 3D apparatus view (optics benches) ───────────────────────────────── */
+
+.apparatus-view { position: relative; display: block; }
+.apparatus-view-toggle {
+  position: absolute;
+  top: var(--sp-3);
+  right: var(--sp-3);
+  z-index: 4;
+}
+.apparatus-3d-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 820 / 470;
+  border-radius: var(--r-2);
+  overflow: hidden;
+  background: linear-gradient(180deg, #10192d, #0b132b);
+}
+.apparatus-3d-container { position: absolute; inset: 0; }
+.apparatus-3d-note {
+  position: absolute;
+  inset: auto var(--sp-3) var(--sp-3) var(--sp-3);
+  margin: 0;
+  color: var(--ink-3);
+  font-size: 0.78rem;
+  text-align: center;
+}

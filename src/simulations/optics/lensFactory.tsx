@@ -4,6 +4,7 @@ import type { ModelOutput } from '@/components/shell/PhysicsExperiment';
 import { lensImage, lensPower } from '@/physics-engine/optics';
 import { OpticsBench, benchGeometry, xOf, yOf, FocalMarks, type BenchRay } from '@/components/instruments/OpticsBench';
 import { LensSvg } from '@/components/instruments/Instruments';
+import { ApparatusView } from '@/components/instruments/ApparatusView';
 import { col, num, ro } from '../experiments/_shared';
 import { DragX, DragY, type StageApi } from '@/components/controls/StageKit';
 import { formatFixed } from '@/utils/format';
@@ -109,44 +110,58 @@ export function makeLensStage(c: LensConfig) {
       }
     }
 
+    const title = `${c.convex ? 'Convex' : 'Concave'} lens · f = ${fCm.toFixed(1)} cm · P = ${(100 / fCm).toFixed(2)} D`;
+
     return (
-      <OpticsBench
-        geometry={g}
-        rays={rays}
-        objectX={oX}
-        objectHeight={hCm}
-        image={img}
-        title={`${c.convex ? 'Convex' : 'Concave'} lens · f = ${fCm.toFixed(1)} cm · P = ${(100 / fCm).toFixed(2)} D`}
-        subtitle={`u = ${uCm.toFixed(1)} cm → v = ${(img.imageDistance * 100).toFixed(2)} cm · m = ${img.magnification.toFixed(3)}`}
-        optic={
-          <>
-            <LensSvg x={g.originX} y={g.axisY} convex={c.convex} height={210} thickness={26} label="O" />
-            <FocalMarks g={g} values={[{ x: fX, label: c.convex ? "F'" : 'F' }, { x: f2X, label: 'F' }, { x: xOf(g, 2 * fCm), label: "2F'" }, { x: xOf(g, -2 * fCm), label: '2F' }]} />
-          </>
+      <ApparatusView
+        ray2d={
+          <OpticsBench
+            geometry={g}
+            rays={rays}
+            objectX={oX}
+            objectHeight={hCm}
+            image={img}
+            title={title}
+            subtitle={`u = ${uCm.toFixed(1)} cm → v = ${(img.imageDistance * 100).toFixed(2)} cm · m = ${img.magnification.toFixed(3)}`}
+            optic={
+              <>
+                <LensSvg x={g.originX} y={g.axisY} convex={c.convex} height={210} thickness={26} label="O" />
+                <FocalMarks g={g} values={[{ x: fX, label: c.convex ? "F'" : 'F' }, { x: f2X, label: 'F' }, { x: xOf(g, 2 * fCm), label: "2F'" }, { x: xOf(g, -2 * fCm), label: '2F' }]} />
+              </>
+            }
+          >
+            {/* Drag the object along the bench; drag its tip to change its height. */}
+            <DragX
+              spec={control('u', 'slider')}
+              params={params}
+              onChange={(key, value) => set(key, value)}
+              x={g.originX}
+              y={g.axisY + 96}
+              length={g.originX - xOf(g, -60)}
+              mapping={{ toValue: (dx) => -dx / g.scale, invert: (u) => xOf(g, -u) }}
+              label="Object distance u — drag along the bench"
+            />
+            <DragY
+              spec={control('height', 'slider')}
+              params={params}
+              onChange={(key, value) => set(key, value)}
+              x={oX - 22}
+              y={g.axisY}
+              height={g.axisY - yOf(g, 0.5)}
+              mapping={{ toValue: (dy) => -dy / g.scale, invert: (h) => yOf(g, h) }}
+              label="Object height h — drag the tip"
+            />
+          </OpticsBench>
         }
-      >
-        {/* Drag the object along the bench; drag its tip to change its height. */}
-        <DragX
-          spec={control('u', 'slider')}
-          params={params}
-          onChange={(key, value) => set(key, value)}
-          x={g.originX}
-          y={g.axisY + 96}
-          length={g.originX - xOf(g, -60)}
-          mapping={{ toValue: (dx) => -dx / g.scale, invert: (u) => xOf(g, -u) }}
-          label="Object distance u — drag along the bench"
-        />
-        <DragY
-          spec={control('height', 'slider')}
-          params={params}
-          onChange={(key, value) => set(key, value)}
-          x={oX - 22}
-          y={g.axisY}
-          height={g.axisY - yOf(g, 0.5)}
-          mapping={{ toValue: (dy) => -dy / g.scale, invert: (h) => yOf(g, h) }}
-          label="Object height h — drag the tip"
-        />
-      </OpticsBench>
+        apparatus3d={{
+          title,
+          kind: 'lens',
+          uCm,
+          vCm: img.imageDistance * 100,
+          heightCm: hCm,
+          isReal: img.isReal
+        }}
+      />
     );
   };
 }
