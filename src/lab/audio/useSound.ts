@@ -31,11 +31,17 @@ export function useSound(): { play: PlayCue; enabled: boolean } {
 }
 
 /**
- * Resumes the audio context on the first real gesture. Browsers refuse to start
- * one otherwise, so this is attached once by the app shell rather than by every
- * control that might make a noise.
+ * Applies the student's audio preference app-wide and resumes the context on
+ * the first real gesture. Browsers refuse to start an AudioContext outside a
+ * gesture, so the shell arms it once rather than every control that might make
+ * a noise. Called by the app layout; `useSound` covers the same ground for a
+ * component mounted without it.
  */
-export function useAudioUnlock(enabled: boolean): void {
+export function useAudioUnlock(enabled: boolean, volume = 0.6): void {
+  useEffect(() => {
+    labAudio.configure({ enabled, volume });
+  }, [enabled, volume]);
+
   useEffect(() => {
     if (!enabled || typeof window === 'undefined') return;
     const unlock = () => labAudio.resume();
