@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { BenchBoard } from '@/components/instruments/BenchBoard';
 import { BatteryCell, Lead, MeterFace, Rheostat, Switch } from '@/components/instruments/Instruments';
 import { SvgDefs } from '@/components/shell/Viewport';
+import { FLOW_DISCLOSURE } from '@/lab/motion';
 
 /** A resistance box with its dial value on the lid. */
 export function ResistanceBox({
@@ -108,8 +109,14 @@ export function SeriesLoop({
       <text x={410} y={132} textAnchor="middle" fontSize={12.5} fontWeight={600} fill="#eaf1f8">
         Series circuit · terminal voltage {terminalV.toFixed(2)} V
       </text>
-      <text x={410} y={450} textAnchor="middle" fontSize={10.5} fill="#5e7189">
+      <text x={410} y={444} textAnchor="middle" fontSize={10.5} fill="#5e7189">
         {closed ? 'Key closed — current flows through the loop' : 'Key open — the circuit is broken'}
+      </text>
+      {/* The moving cue on a live lead shows the direction of conventional
+          current. Saying so on the apparatus is required: without it the
+          animation implies electrons racing round the wire at drift speed. */}
+      <text x={410} y={460} textAnchor="middle" fontSize={9.5} fill="#4a5b6e">
+        {FLOW_DISCLOSURE}
       </text>
 
       {extraLead}
