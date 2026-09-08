@@ -36,9 +36,15 @@ const files = (await exists(assets)) ? await readdir(assets) : [];
 const read = (f) => readFile(join(assets, f), 'utf8');
 
 // Inline every stylesheet.
+//
+// Every replacement below passes a FUNCTION rather than a string. A string
+// replacement interprets `$&`, `$\``, `$'` and `$1`-`$99` as patterns, and a
+// minified bundle routinely contains `$&&` — a variable named `$` followed by a
+// logical and. That would splice the matched text into the middle of the code
+// and produce a file that parses as HTML but not as JavaScript.
 for (const css of files.filter((f) => f.endsWith('.css'))) {
   const body = await read(css);
-  html = html.replace(new RegExp(`<link[^>]+href="[^"]*${css}"[^>]*>`), `<style>${body}</style>`);
+  html = html.replace(new RegExp(`<link[^>]+href="[^"]*${css}"[^>]*>`), () => `<style>${body}</style>`);
 }
 
 // The portable build emits a single module, so it can be inlined verbatim —
@@ -51,11 +57,17 @@ if (chunks.length !== 1) {
 }
 
 const bundle = await read(chunks[0]);
+const inlined = bundle.replace(/<\/script>/gi, '<\\/script>');
 html = html.replace(/<script[^>]+src="[^"]*"[^>]*><\/script>/g, '');
-html = html.replace(
-  '</body>',
-  `<script type="module">${bundle.replace(/<\/script>/gi, '<\\/script>')}</script>\n</body>`
-);
+html = html.replace('</body>', () => `<script type="module">${inlined}</script>\n</body>`);
+
+// The bundle must survive the splice byte for byte. This is the check that
+// catches a `$`-pattern corruption immediately instead of shipping a file that
+// looks fine and throws SyntaxError on open.
+if (!html.includes(inlined)) {
+  console.error('✗ the bundle was altered while being inlined — the HTML would not parse as JavaScript.');
+  process.exit(1);
+}
 
 // System fonts only: a web font would need the network.
 html = html.replace(/<link[^>]+fonts\.[^>]+>/g, '');

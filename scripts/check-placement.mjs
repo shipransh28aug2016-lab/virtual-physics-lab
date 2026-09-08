@@ -168,6 +168,15 @@ for (const { slug, title } of list) {
       .map((h) => h.closest('.stage-ctl')?.getAttribute('aria-label') ?? 'handle');
 
     const unnamed = controls.filter((h) => !h.getAttribute('aria-label')).length;
+
+    // Bench sockets are buttons, not sliders, so they need their own check:
+    // every one must be named and in the tab order, or the circuit can only be
+    // wired with a pointer.
+    const terminals = [...document.querySelectorAll('.bench-terminal')];
+    const terminalsUnnamed = terminals.filter((t) => !t.getAttribute('aria-label')).length;
+    const terminalsUnfocusable = terminals.filter((t) => t.getAttribute('tabindex') !== '0').length;
+    const flowCues = document.querySelectorAll('.lead-flow').length;
+    const disclosure = /not literal electron drift/i.test(svg.textContent ?? '');
     // A radiogroup delegates focus to its radios (roving tabindex), so the
     // focusable element is the widget itself, not always the group.
     const focusables = [
@@ -190,6 +199,11 @@ for (const { slug, title } of list) {
       unnamed,
       unfocusable,
       valueless,
+      terminals: terminals.length,
+      terminalsUnnamed,
+      terminalsUnfocusable,
+      flowCues,
+      disclosure,
       series: document.querySelectorAll('path.chart-series').length,
       readouts: document.querySelectorAll('.readout').length,
       nan: /NaN|Infinity/.test(document.body.innerText)
@@ -204,6 +218,13 @@ for (const { slug, title } of list) {
   if (report.unnamed) note(slug, `${report.unnamed} on-apparatus handles have no accessible name`);
   if (report.unfocusable) note(slug, `${report.unfocusable} handles are not keyboard reachable`);
   if (report.valueless) note(slug, `${report.valueless} sliders announce no value`);
+  if (report.terminalsUnnamed) note(slug, `${report.terminalsUnnamed} bench terminals have no accessible name`);
+  if (report.terminalsUnfocusable) note(slug, `${report.terminalsUnfocusable} bench terminals are not keyboard reachable`);
+  // A charge-flow animation without its disclosure would imply electrons race
+  // round the wire at drift speed. Honesty about the representation is a test.
+  if (report.flowCues > 0 && !report.disclosure) {
+    note(slug, 'a charge-flow animation is drawn without the "not electron drift speed" disclosure');
+  }
   for (const o of report.overlapping) {
     overlaps += 1;
     note(slug, o);
@@ -230,6 +251,28 @@ for (const { slug, title } of list) {
     return frames;
   });
   if (fps !== null && fps < 30) note(slug, `only ${fps} fps while sweeping a control`);
+
+  // On a bench, wiring must be reachable from the keyboard alone: focus two
+  // sockets, press Enter on each, and a lead must appear.
+  if (report.terminals >= 2) {
+    const wired = await page.evaluate(async () => {
+      const before = document.querySelectorAll('.bench-wire').length;
+      const sockets = [...document.querySelectorAll('.bench-terminal')];
+      const press = (el) => {
+        el.focus();
+        el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+      };
+      // Two sockets that are not already joined: the first and the last.
+      press(sockets[0]);
+      await new Promise((r) => setTimeout(r, 40));
+      press(sockets[sockets.length - 1]);
+      await new Promise((r) => setTimeout(r, 80));
+      return { before, after: document.querySelectorAll('.bench-wire').length };
+    });
+    if (wired.after === wired.before) {
+      note(slug, 'two Enter presses on bench sockets did not connect a lead');
+    }
+  }
 
   // Narrow viewport: the layout must not overflow on a phone either.
   await page.setViewportSize({ width: 360, height: 780 });

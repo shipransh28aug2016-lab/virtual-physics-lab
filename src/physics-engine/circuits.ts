@@ -164,6 +164,18 @@ export function diodeCurrent(
   return saturationCurrent * (Math.exp(exponent) - 1);
 }
 
+/**
+ * Reverse saturation current at a temperature, from its value at 300 K.
+ *
+ * I_s roughly doubles for every 10 K rise — the standard textbook rule, and the
+ * reason the reverse current of a junction diode grows with temperature while
+ * the forward knee moves to a lower voltage.
+ */
+export const saturationCurrentAtTemperature = (
+  is300: number,
+  temperatureK: number
+): number => is300 * Math.pow(2, (temperatureK - 300) / 10);
+
 /** Thermal voltage kT/e at a Celsius temperature. */
 export const thermalVoltage = (tempC: number): number =>
   (CONSTANTS.K_B * celsiusToKelvin(tempC)) / CONSTANTS.E_CHARGE;

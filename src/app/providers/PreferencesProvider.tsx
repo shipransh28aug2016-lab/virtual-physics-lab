@@ -16,6 +16,10 @@ interface PreferencesState {
   favourites: string[];
   recent: string[];
   motion: boolean;
+  /** Apparatus sound cues. Off until the student asks for them. */
+  sound: boolean;
+  /** Master volume for those cues, 0–1. */
+  volume: number;
 }
 
 export interface Preferences extends PreferencesState {
@@ -24,9 +28,18 @@ export interface Preferences extends PreferencesState {
   isFavourite: (slug: string) => boolean;
   touchRecent: (slug: string) => void;
   setMotion: (on: boolean) => void;
+  setSound: (on: boolean) => void;
+  setVolume: (v: number) => void;
 }
 
-const DEFAULTS: PreferencesState = { lang: 'en', favourites: [], recent: [], motion: true };
+const DEFAULTS: PreferencesState = {
+  lang: 'en',
+  favourites: [],
+  recent: [],
+  motion: true,
+  sound: false,
+  volume: 0.6
+};
 const KEY = 'preferences';
 const RECENT_LIMIT = 8;
 
@@ -50,6 +63,11 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
 
   const setLang = useCallback((lang: Lang) => setState((s) => ({ ...s, lang })), []);
   const setMotion = useCallback((motion: boolean) => setState((s) => ({ ...s, motion })), []);
+  const setSound = useCallback((sound: boolean) => setState((s) => ({ ...s, sound })), []);
+  const setVolume = useCallback(
+    (volume: number) => setState((s) => ({ ...s, volume: Math.max(0, Math.min(1, volume)) })),
+    []
+  );
 
   const toggleFavourite = useCallback((slug: string) => {
     setState((s) => ({
@@ -73,11 +91,13 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
       ...state,
       setLang,
       setMotion,
+      setSound,
+      setVolume,
       toggleFavourite,
       isFavourite: (slug: string) => state.favourites.includes(slug),
       touchRecent
     }),
-    [state, setLang, setMotion, toggleFavourite, touchRecent]
+    [state, setLang, setMotion, setSound, setVolume, toggleFavourite, touchRecent]
   );
 
   return <PreferencesContext.Provider value={value}>{children}</PreferencesContext.Provider>;
@@ -91,6 +111,8 @@ export function usePreferences(): Preferences {
     ...DEFAULTS,
     setLang: () => undefined,
     setMotion: () => undefined,
+    setSound: () => undefined,
+    setVolume: () => undefined,
     toggleFavourite: () => undefined,
     isFavourite: () => false,
     touchRecent: () => undefined

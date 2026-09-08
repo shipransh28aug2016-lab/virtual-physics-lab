@@ -5,6 +5,7 @@ import {
   cellsInParallel,
   cellsInSeries,
   diodeCurrent,
+  saturationCurrentAtTemperature,
   galvanometerFigureOfMerit,
   galvanometerResistanceHalfDeflection,
   internalResistanceFromPotentiometer,
@@ -144,6 +145,27 @@ describe('circuits', () => {
 
   it('gives the internal resistance from a potentiometer', () => {
     expect(internalResistanceFromPotentiometer(60, 50, 5)).toBeCloseTo(1, 10);
+  });
+
+  it('doubles the reverse saturation current for every 10 K rise', () => {
+    // The standard textbook rule; it is why the reverse current of a junction
+    // diode grows with temperature and the forward knee moves down.
+    expect(saturationCurrentAtTemperature(1e-9, 300)).toBeCloseTo(1e-9, 15);
+    expect(saturationCurrentAtTemperature(1e-9, 310)).toBeCloseTo(2e-9, 15);
+    expect(saturationCurrentAtTemperature(1e-9, 320)).toBeCloseTo(4e-9, 15);
+    expect(saturationCurrentAtTemperature(1e-9, 290)).toBeCloseTo(5e-10, 15);
+  });
+
+  it('puts the silicon knee near 0.7 V and the germanium knee near 0.3 V', () => {
+    // A rectifier diode: I_s ≈ 1 nA with an ideality of 1.8 carries a few
+    // milliampere at 0.7 V, which is what the NCERT characteristic shows.
+    const si = diodeCurrent(1e-9, 0.7, 300, 1.8);
+    expect(si).toBeGreaterThan(1e-3);
+    expect(si).toBeLessThan(1e-2);
+    // Germanium leaks a thousand times more, so it turns on near 0.3 V.
+    const ge = diodeCurrent(1e-6, 0.3, 300, 1.8);
+    expect(ge).toBeGreaterThan(1e-4);
+    expect(ge).toBeLessThan(5e-3);
   });
 
   it('makes a diode conduct forwards and block backwards', () => {
