@@ -1,8 +1,13 @@
 import type { Part } from '@/physics-engine/circuit';
 import { BatteryCell, MeterFace, Resistor, Rheostat, Switch } from '@/components/instruments/Instruments';
 
-/** How far each terminal sits from the part's centre, in stage units. */
+/**
+ * How far each terminal sits from the part's centre, in stage units. A layout
+ * may override it so that swapping one component for another in the same mount
+ * leaves the sockets — and therefore the student's wiring — where they were.
+ */
 export function halfWidth(part: Part): number {
+  if (part.layout?.span !== undefined) return part.layout.span;
   switch (part.kind) {
     case 'cell':
       return 42;

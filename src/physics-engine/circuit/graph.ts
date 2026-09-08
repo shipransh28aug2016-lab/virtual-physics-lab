@@ -33,6 +33,12 @@ export interface Layout {
   x: number;
   y: number;
   rotate?: number;
+  /**
+   * Socket spacing of the mount this part sits in, overriding the default for
+   * its kind. Swapping one component for another in the same mount must not
+   * move the sockets, or the wiring appears to jump.
+   */
+  span?: number;
 }
 
 interface PartBase {
