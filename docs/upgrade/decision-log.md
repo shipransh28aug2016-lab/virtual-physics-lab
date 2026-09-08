@@ -81,3 +81,76 @@ hardware and the offline build both punish an unconditional 3D dependency.
 **Tradeoff.** Two view implementations to maintain for the pilot experiment.
 
 **Impact.** No change to bundle size unless a student opens the pilot.
+
+---
+
+## D5 · The netlist is an ordinary experiment parameter
+
+**Decision.** A bench's wiring is carried in `ParamValues` as a canonical
+encoded string (`"c.a-k.b;k.a-r.a;…"`), not in component state.
+
+**Reason.** `compute(params)` must stay pure and parameters must stay
+serialisable. Encoding the netlist keeps both, and buys three things for free:
+a reading is traceable to the circuit it came from, Reset restores a known
+layout, and a mis-wiring is reproducible in a test by its encoding.
+
+**Alternatives.** Wiring in React state inside the stage (breaks the model/view
+split — `compute` could not see it); a new `ControlKind` (would have required
+changing the shared `simulators.test` control checks, which are the regression
+contract for 49 modules).
+
+**Tradeoff.** The wiring control is declared as a `select` whose two or three
+named options are the starting layouts; free wiring stores a value that is not
+among them. That is slightly loose typing in exchange for not touching the
+contract.
+
+**Impact.** No change to `useLabState`, the notebook, the shell or any other
+module.
+
+---
+
+## D6 · A3 stays as it is
+
+**Decision.** `resistance-series-parallel` (A3, laws of combination) is **KEEP**,
+not migrated to the bench.
+
+**Reason.** §41 asks for classification before rewriting. A3 is a metre bridge:
+a Wheatstone network whose defining interaction is sliding a jockey along a
+uniform wire to find a null. Its current implementation already does that with a
+real drag control, a real balance condition and a theory-vs-experiment
+comparison in the notebook. Putting it on a netlist bench would replace a good
+interaction with a worse one to satisfy a pattern.
+
+**Alternatives.** Migrate it for consistency.
+
+**Tradeoff.** The bench has one fewer consumer, so B9 was chosen as the second
+reference instead — and that turned out to be the more valuable target, because
+the migration exposed real physics errors.
+
+**Impact.** None. The bench propagation order is now A1, A4, A5,
+`battery-series-parallel`.
+
+---
+
+## D7 · Meters carry their real resistance, and the loading error is taught
+
+**Decision.** The bench's ammeter has a real resistance and its voltmeter a
+real, finite one, so V/I from the meters is not exactly the marked value.
+
+**Reason.** It is what a real bench does, and the difference is examinable —
+"why is the ammeter connected in series and the voltmeter in parallel" is a
+standard viva question whose answer is about exactly this.
+
+**Alternatives.** Ideal meters, which would make every reading agree with the
+closed-form value and quietly remove a real source of error from the practical.
+
+**Tradeoff.** A bench reading legitimately differs from the textbook number.
+That has to be explained rather than hidden, so the theory tab, the sources of
+error and the viva all now say so.
+
+**Impact.** In the diode bench this surfaced a stronger effect: in reverse bias
+the ammeter reads the *voltmeter's* own current, which for silicon is a thousand
+times the diode's leakage. Rather than idealise it away, the bench uses a 10 MΩ
+digital voltmeter, reports the voltmeter's current as its own reading so it can
+be subtracted, and teaches the effect. This is the clearest case so far of the
+model being more honest than the module it replaced.

@@ -6,8 +6,10 @@ the numerical model recomputes, the instrument responds, the reading updates,
 the graph re-plots, and the lab notebook can record the trial and compare it
 against theory. Nothing on screen is a static diagram or a scripted animation.
 
-- **46 experiment modules** across the six units the lab currently covers
+- **49 experiment modules** across the units the lab currently covers
 - **15 listed practicals** — Section A 1–6 and Section B 1–9 of the board list
+- **A digital circuit bench** — the student wires the circuit, and a wrong
+  connection behaves like a wrong connection
 - **Bilingual** English ⇄ NCERT-style Devanagari, fallback-safe
 - **Offline** — the whole lab ships as one self-contained HTML file that runs
   from `file://` with no server and no network
@@ -39,6 +41,8 @@ npm run dev              # dev server
 ```
 src/
   physics-engine/   pure model, SI units, no React
+    circuit/        netlist → MNA solver → faults (the bench engine)
+  lab/              motion tokens · audio bus · interaction · feedback rules
   simulations/
     experiments/    one file per experiment = the whole simulator
     optics/ magnetism/   shared view factories
@@ -46,6 +50,7 @@ src/
     shell/          PhysicsExperiment (wiring) · SimulatorShell (chrome) · Viewport
     controls/       StageKit (on-apparatus handles) · Controls (dock)
     instruments/    CircuitBoard · OpticsBench · Instruments · BenchBoard
+    bench/          CircuitBench · Terminal · Wire · part glyphs
     charts/ lab-notebook/ math/ common/
   experiments/      registry (glob loader) + catalogue test
   app/ pages/ i18n/ hooks/ utils/ data/ types/ styles/
@@ -68,5 +73,27 @@ Each `src/simulations/experiments/<slug>.tsx` exports:
 
 Do not rename: `svg.svg-lab`, `.stage-ctl[role="slider"]`, `.readout`,
 `path.chart-series`, `.stage-bench`, `.stage-pin`, `.viewport-stage`.
+
+## The circuit bench
+
+An experiment can put its circuit on the bench instead of drawing it. The
+circuit is then a **netlist**, not a picture: parts with named terminals joined
+by leads the student plugs in. Press a socket to pick a lead up and a second
+socket to put it down — the same gesture with a mouse, a finger or the keyboard.
+
+Because the topology is real, so are the mistakes: an ammeter bridged across a
+component, a voltmeter dropped into the loop, a reversed meter, a lead left out,
+a short across the cell, a meter driven past full scale. Each is detected from
+the graph and answered in the language of the syllabus. The meters carry their
+real resistance, so meter loading is a computed consequence rather than a
+special case.
+
+`ohms-law.tsx` and `iv-characteristic.tsx` are the reference implementations.
+
+## Documentation
+
+`docs/architecture/` · `docs/science/` · `docs/experiments/` · `docs/audio/` ·
+`docs/animation/` · `docs/accessibility/` · `docs/curriculum/` ·
+`docs/testing/` · `docs/upgrade/` (baseline, repository map, decision log).
 
 See `HANDOVER.md` for the full picture, the techniques used, and the roadmap.
