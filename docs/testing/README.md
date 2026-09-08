@@ -55,6 +55,20 @@ It runs against `dist/` over http and against the single portable file over
 `file://`, because the two builds differ (code splitting versus one inlined
 bundle) and a `file://`-only failure has happened before.
 
+## The portable build checks itself
+
+`scripts/portable.mjs` exits non-zero if more than one bundle is emitted, if any
+external reference survives, or — added after it happened — **if the bundle text
+did not survive being spliced into the HTML byte for byte**. That last check
+exists because a `String.replace` with a string replacement interprets `$&` and
+friends as patterns, and a minified bundle routinely contains `$&&`. The result
+was an offline file that parsed as HTML and threw `SyntaxError` on open, with
+every route blank. See `docs/upgrade/decision-log.md` D8.
+
+The lesson generalises: the portable target is a *different build*, and a check
+that runs only against `dist/` will not see its failures. Both audits must be
+green.
+
 ## Writing a bench test
 
 A bench test is not only "does the physics come out right". Half of it is

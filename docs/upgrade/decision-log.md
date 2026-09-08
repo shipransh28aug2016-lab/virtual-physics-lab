@@ -154,3 +154,33 @@ times the diode's leakage. Rather than idealise it away, the bench uses a 10 MΩ
 digital voltmeter, reports the voltmeter's current as its own reading so it can
 be subtracted, and teaches the effect. This is the clearest case so far of the
 model being more honest than the module it replaced.
+
+---
+
+## D8 · The portable splice is verified, not trusted
+
+**Decision.** `scripts/portable.mjs` passes a **function** to every
+`String.replace` that inserts content, and then asserts the bundle survived the
+splice byte for byte before writing the file.
+
+**Reason.** A string replacement interprets `$&`, `` $` ``, `$'` and `$1`–`$99`
+as patterns. A minified bundle routinely contains `$&&` — a variable named `$`
+followed by a logical and — and the old code spliced the matched `</body>` into
+the middle of react-router, producing an 877 kB file that parsed as HTML and
+threw `SyntaxError: Unexpected token '<'` on open. Every route rendered blank.
+
+The bug was latent for the life of the repository: it only bites when the
+minifier happens to name a variable `$` *and* place it before `&&`. Adding the
+notebook code shifted the name assignment and triggered it. Nothing about the
+old code was obviously wrong to read, which is exactly why it needed a check
+rather than care.
+
+**Alternatives.** Escape `$` in the replacement (fixes this splice, leaves the
+next one to be got right by hand); parse the emitted script with esbuild (adds a
+dependency edge to a build script for a weaker guarantee).
+
+**Tradeoff.** None worth naming — the check is one string comparison.
+
+**Impact.** `npm run build:portable` now exits non-zero rather than emitting a
+broken offline file, and CI runs it on every push. The failure mode is
+impossible to ship silently again.

@@ -113,6 +113,13 @@ export const Icons = {
       <path d="m7 15 3.5-4.5L14 14l4-6.5" />
     </svg>
   ),
+  Download: (p: IconProps) => (
+    <svg {...base(p)}>
+      <path d="M12 3v12" />
+      <path d="m7 11 5 5 5-5" />
+      <path d="M4 20h16" />
+    </svg>
+  ),
   Globe: (p: IconProps) => (
     <svg {...base(p)}>
       <circle cx="12" cy="12" r="9" />

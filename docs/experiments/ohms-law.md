@@ -102,3 +102,29 @@ theory_relation:
 | Maintainability | 94 | engine, interaction, audio and view are separable; the next bench reuses all of it |
 
 No dimension is below 90 and nothing scientific or curricular fails.
+
+---
+
+## Lab notebook 2.0
+
+Since the notebook is shared by all 49 experiments, the upgrade below applies to
+every one of them, not only to this bench.
+
+| Field | Where it comes from |
+|---|---|
+| trial number | monotonic, stable across deletions |
+| measured columns | `capture()` reads the live model |
+| derived columns | `derive()` recomputed on render, never stored |
+| **timestamp** | recorded automatically; shown on the trial number's tooltip |
+| **apparatus settings** | snapshotted from the experiment's own declared controls at the moment of recording, so no experiment has to remember to supply one |
+| **note** | an editable cell per trial, with its own accessible name |
+| theoretical value and % error | the existing comparison foot |
+| **conclusion** | a persisted textarea, shown once there is something to conclude from |
+| **export** | CSV: header, one line per trial with timestamp, settings and note, then the comparison and the conclusion |
+
+The netlist is deliberately excluded from the settings snapshot: it is long and
+it is not a setting a student reads back off the bench.
+
+The export falls back to showing the text for manual copying when a browser
+refuses the download — some `file://` sandboxes do, and the portable build is a
+first-class target, so silently doing nothing was not an option.

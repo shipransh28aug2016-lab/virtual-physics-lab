@@ -508,3 +508,45 @@ button.view-pill { font: inherit; cursor: pointer; }
 .bench-hint.is-error { fill: var(--danger); }
 .bench-hint.is-warning { fill: var(--warning); }
 .bench-hint.is-info { fill: var(--ink-3); }
+
+/* ── lab notebook 2.0 ───────────────────────────────────────────────────── */
+
+.notebook-note {
+  width: 100%;
+  min-width: 90px;
+  padding: 4px 6px;
+  border: 1px solid transparent;
+  border-radius: var(--r-1);
+  background: transparent;
+  color: var(--ink-2);
+  font: inherit;
+  font-size: 0.84rem;
+}
+.notebook-note:hover { border-color: var(--line-2); }
+.notebook-note:focus { border-color: var(--primary); background: var(--surface-2); color: var(--ink); outline: none; }
+.notebook-note::placeholder { color: var(--ink-4); }
+
+.notebook-conclusion, .notebook-fallback { display: grid; gap: 6px; margin-top: var(--sp-4); }
+.notebook-conclusion label, .notebook-fallback label {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-3);
+  font-weight: 600;
+}
+.notebook-conclusion textarea, .notebook-fallback textarea {
+  width: 100%;
+  padding: var(--sp-3);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-2);
+  background: var(--surface-2);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.9rem;
+  resize: vertical;
+}
+.notebook-fallback textarea { font-family: var(--font-mono); font-size: 0.78rem; }
+.notebook-conclusion textarea:focus, .notebook-fallback textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+}

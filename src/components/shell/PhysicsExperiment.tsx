@@ -67,10 +67,33 @@ export function PhysicsExperiment({
     [notebook, lab.params, model, book.rows]
   );
 
+  /**
+   * A trial records what the apparatus was set to as well as what it read, so
+   * a row in the exported table can be traced back to the settings that
+   * produced it. The snapshot is built from the controls the experiment
+   * declares, so no experiment has to remember to provide one.
+   */
+  const settingsSnapshot = useCallback(
+    () =>
+      definition.controls
+        .filter((c) => c.kind === 'slider' || c.kind === 'toggle' || c.kind === 'select' || c.kind === 'segmented')
+        .map((c) => {
+          const v = lab.params[c.key];
+          const shown = typeof v === 'number' ? Number(v.toFixed(4)) : v;
+          // A netlist is long and is not a setting a student reads back.
+          if (typeof shown === 'string' && shown.length > 24) return null;
+          const unit = 'unit' in c && c.unit ? ` ${c.unit}` : '';
+          return `${c.label} ${shown}${unit}`;
+        })
+        .filter((x): x is string => x !== null)
+        .join('; '),
+    [definition.controls, lab.params]
+  );
+
   const onRecord = useCallback(() => {
     if (!notebookSpec) return;
-    book.record(notebookSpec.capture());
-  }, [notebookSpec, book]);
+    book.record(notebookSpec.capture(), settingsSnapshot());
+  }, [notebookSpec, book, settingsSnapshot]);
 
   return (
     <SimulatorShell
@@ -82,8 +105,11 @@ export function PhysicsExperiment({
       overlay={viewportOverlay?.(lab.params, model)}
       notebookSpec={notebookSpec}
       notebookRows={book.rows}
+      notebookConclusion={book.conclusion}
       onRecord={onRecord}
       onRemoveRow={book.removeRow}
+      onAnnotateRow={book.annotate}
+      onConclusion={book.setConclusion}
       onClearNotebook={book.clear}
     />
   );
