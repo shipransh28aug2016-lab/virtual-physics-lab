@@ -10,6 +10,7 @@ import { mergeIssues, validateRange } from '@/physics-engine/validation';
 import { formatSI } from '@/utils/format';
 import { col, num, ro, bool, singleSeriesGraph } from './_shared';
 import { DragX, type StageApi } from '@/components/controls/StageKit';
+import { makeFieldScene } from '@/lab/scenes/field';
 
 import { meta } from './coulombs-law.meta';
 
@@ -228,12 +229,33 @@ const W = 800;
 const H = 480;
 const AXIS_Y = 250;
 
+/**
+ * Where the two charges sit on the stage, and how the drawing's pixels map onto
+ * real metres.
+ *
+ * The SVG apparatus and the canvas field overlay both read this, so an arrow
+ * painted on the canvas lands on the charge the SVG drew. The separation is
+ * clamped so that a 1 cm and a 100 cm setting are both legible; `pxPerMetre` is
+ * derived from the clamped gap rather than assumed, which keeps the field the
+ * overlay computes consistent with the distance the student sees.
+ */
+export function benchGeometry(params: ParamValues): {
+  x1: number;
+  x2: number;
+  y: number;
+  gap: number;
+  pxPerMetre: number;
+} {
+  const rM = Math.max(num(params, 'r', 30) / 100, 1e-4);
+  const gap = Math.min(Math.max(rM * 400, 80), 520);
+  return { x1: 400 - gap / 2, x2: 400 + gap / 2, y: AXIS_Y, gap, pxPerMetre: gap / rM };
+}
+
 function Stage({ params, set, control }: StageApi) {
   const q1uC = num(params, 'q1', 4);
   const q2uC = num(params, 'q2', 4);
   const rCm = num(params, 'r', 30);
   const kappa = num(params, 'kappa', 1);
-  const showField = bool(params, 'showField', true);
   const showVectors = bool(params, 'showVectors', true);
 
   const q1 = q1uC * 1e-6;
@@ -243,9 +265,7 @@ function Stage({ params, set, control }: StageApi) {
   const mag = Math.abs(force);
   const attractive = force < 0;
 
-  const gap = Math.min(Math.max((rM * 4000) / 10, 80), 520);
-  const x1 = 400 - gap / 2;
-  const x2 = 400 + gap / 2;
+  const { x1, x2 } = benchGeometry(params);
   const radius = 20;
   const arrowLen = mag > 0 ? Math.min(38 + Math.log10(mag + 1e-6) * 46, 150) : 0;
   // Force on q₂ points away from q₁ when repulsive (positive force).
@@ -256,7 +276,6 @@ function Stage({ params, set, control }: StageApi) {
       <SvgDefs />
       <line x1={40} y1={AXIS_Y} x2={760} y2={AXIS_Y} className="axis-line" strokeDasharray="6 5" opacity={0.55} />
 
-      {showField ? <FieldLines x={x1} q={q1} /> : null}
 
       <g>
         <line x1={x1} y1={AXIS_Y + 82} x2={x2} y2={AXIS_Y + 82} className="dim-line" />
@@ -332,36 +351,40 @@ function Stage({ params, set, control }: StageApi) {
   );
 }
 
-function FieldLines({ x, q }: { x: number; q: number }) {
-  if (q === 0) return null;
-  const outward = q > 0;
-  const count = 14;
-  return (
-    <g opacity={0.45}>
-      {Array.from({ length: count }, (_, i) => {
-        const a = (i / count) * Math.PI * 2;
-        const r0 = 28;
-        const r1 = 118;
-        const from = { x: x + Math.cos(a) * r0, y: AXIS_Y + Math.sin(a) * r0 };
-        const to = { x: x + Math.cos(a) * r1, y: AXIS_Y + Math.sin(a) * r1 };
-        return (
-          <line
-            key={i}
-            x1={outward ? from.x : to.x}
-            y1={outward ? from.y : to.y}
-            x2={outward ? to.x : from.x}
-            y2={outward ? to.y : from.y}
-            className="field-line"
-            markerEnd="url(#lab-arrow-blue)"
-            strokeWidth={1.1}
-          />
-        );
-      })}
-    </g>
-  );
-}
 
 /* -------------------------------------------------------------- experiment */
+
+/**
+ * The live field between the two charges, painted on canvas over the apparatus.
+ *
+ * Every arrow is the vector sum kq₁r̂₁/r₁² + kq₂r̂₂/r₂² at that point, divided by
+ * the dielectric constant of the medium — so changing either charge's sign or
+ * magnitude, the separation, or the medium changes the whole picture, because
+ * it changes the sum. The drifting markers follow that same field.
+ */
+const scene = makeFieldScene({
+  width: W,
+  height: H,
+  label: (params) => {
+    const q1 = num(params, 'q1', 4);
+    const q2 = num(params, 'q2', 4);
+    const nature = q1 * q2 > 0 ? 'repel' : q1 * q2 < 0 ? 'attract' : 'exert no force on';
+    return `Live electric field of two point charges, ${q1.toFixed(1)} and ${q2.toFixed(1)} microcoulomb, ${num(params, 'r', 30).toFixed(1)} centimetre apart. They ${nature} each other.`;
+  },
+  enabled: (params) => bool(params, 'showField', true),
+  layout: (params) => {
+    const g = benchGeometry(params);
+    return {
+      charges: [
+        { x: g.x1, y: g.y, q: num(params, 'q1', 4) * 1e-6 },
+        { x: g.x2, y: g.y, q: num(params, 'q2', 4) * 1e-6 }
+      ],
+      pxPerMetre: g.pxPerMetre,
+      kappa: num(params, 'kappa', 1),
+      bounds: { x: 30, y: 70, w: W - 60, h: 300 }
+    };
+  }
+});
 
 export default function CoulombsLawExperiment() {
   return (
@@ -369,6 +392,7 @@ export default function CoulombsLawExperiment() {
       definition={definition}
       education={education}
       compute={compute}
+      scene={scene}
       renderStage={(api) => <Stage {...api} />}
       viewportOverlay={(params) => {
         const q1 = num(params, 'q1', 4) * 1e-6;

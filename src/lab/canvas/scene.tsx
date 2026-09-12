@@ -24,6 +24,14 @@ export interface SceneFrame {
 export interface CanvasScene {
   /** What a screen reader is told the canvas is showing, from the live model. */
   label: (params: ParamValues, model: ModelOutput) => string;
+  /**
+   * Logical size of the scene, which MUST match the viewBox of the SVG
+   * apparatus it overlays — the two use the same "meet" letterboxing rule, so
+   * matching sizes is what keeps a drawn arrow on top of the charge it belongs
+   * to at every window width. Defaults to the common 820 × 470 stage.
+   */
+  width?: number;
+  height?: number;
   /** Draws one frame in stage coordinates. */
   draw: (frame: SceneFrame) => void;
   /**
@@ -55,10 +63,13 @@ export function SceneLayer({ scene, params, model, overlay = true }: SceneLayerP
   const live = useRef({ params, model });
   live.current = { params, model };
 
+  const width = scene.width ?? STAGE_W;
+  const height = scene.height ?? STAGE_H;
+
   return (
     <CanvasStage
-      width={STAGE_W}
-      height={STAGE_H}
+      width={width}
+      height={height}
       overlay={overlay}
       label={scene.label(params, model)}
       draw={(ctx, frame) => {
@@ -69,11 +80,11 @@ export function SceneLayer({ scene, params, model, overlay = true }: SceneLayerP
           dt: frame.dt,
           params: p,
           model: m,
-          width: STAGE_W,
-          height: STAGE_H
+          width,
+          height
         });
         if (scene.disclosure) {
-          drawDisclosure(ctx, scene.disclosure, { x: 0, y: 0, w: STAGE_W, h: STAGE_H });
+          drawDisclosure(ctx, scene.disclosure, { x: 0, y: 0, w: width, h: height });
         }
       }}
     />

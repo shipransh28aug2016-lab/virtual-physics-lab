@@ -13,7 +13,10 @@ export interface Vec2 {
 }
 
 /** The canvas palette. Tuned against the lab's dark stage, not invented per scene. */
-export const INK = {
+export const INK: Record<
+  'positive' | 'negative' | 'field' | 'current' | 'ray' | 'wave' | 'neutral' | 'faint' | 'hot' | 'good',
+  string
+> = {
   positive: '#ff6b7d',
   negative: '#5aa9ff',
   field: '#7dd3fc',
@@ -24,7 +27,7 @@ export const INK = {
   faint: 'rgba(148, 168, 189, 0.28)',
   hot: '#ffc65c',
   good: '#45d68b'
-} as const;
+};
 
 /* ── vectors and arrows ─────────────────────────────────────────────────── */
 

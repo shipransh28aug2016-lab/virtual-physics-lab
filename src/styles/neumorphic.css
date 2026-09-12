@@ -256,7 +256,15 @@
   box-shadow: var(--neumorphic-inset);
   padding: 14px;
 }
-.lab-neu .viewport-stage { position: relative; border-radius: 12px; }
+.lab-neu .viewport-stage { position: relative; border-radius: 12px; overflow: hidden; }
+/* The caption belongs to the case, not to the screen, so it sits outside the
+   recessed well on the light ground. */
+.lab-neu .viewport { gap: var(--sp-3); }
+.lab-neu .viewport-caption {
+  color: var(--neu-muted);
+  padding: 0 4px;
+  background: none;
+}
 
 /* Measurements become recessed LED wells. `.readout` keeps its class — the
    placement audit counts them, and the notebook and charts reuse it. */
