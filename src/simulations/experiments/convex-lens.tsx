@@ -1,5 +1,12 @@
 import { PhysicsExperiment } from '@/components/shell/PhysicsExperiment';
-import { makeLensDefinition, makeLensCompute, makeLensStage, makeLensEducation, lensNotebook } from '../optics/lensFactory';
+import {
+  makeLensDefinition,
+  makeLensCompute,
+  makeLensStage,
+  makeLensEducation,
+  makeLensScene,
+  lensNotebook
+} from '../optics/lensFactory';
 
 import { meta } from './convex-lens.meta';
 
@@ -9,6 +16,7 @@ const config = { convex: true, meta };
 
 const definition = makeLensDefinition(config);
 const education = makeLensEducation(config);
+const scene = makeLensScene(config);
 
 export default function ConvexLensExperiment() {
   const Stage = makeLensStage(config);
@@ -17,6 +25,7 @@ export default function ConvexLensExperiment() {
       definition={definition}
       education={education}
       compute={makeLensCompute(config)}
+      scene={scene}
       renderStage={(api) => <Stage {...api} />}
       notebook={lensNotebook(config)}
     />

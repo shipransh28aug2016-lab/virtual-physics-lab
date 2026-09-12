@@ -4,7 +4,8 @@ import {
   makeMirrorCompute,
   makeMirrorStage,
   makeMirrorEducation,
-  mirrorNotebook
+  mirrorNotebook,
+  makeMirrorScene
 } from '../optics/mirrorFactory';
 
 import { meta } from './convex-mirror.meta';
@@ -15,6 +16,7 @@ const config = { concave: false, meta };
 
 const definition = makeMirrorDefinition(config);
 const education = makeMirrorEducation(config);
+const scene = makeMirrorScene(config);
 
 const Stage = makeMirrorStage(config);
 
@@ -24,6 +26,7 @@ export default function ConvexMirrorExperiment() {
       definition={definition}
       education={education}
       compute={makeMirrorCompute(config)}
+      scene={scene}
       renderStage={(api) => <Stage {...api} />}
       notebook={mirrorNotebook(config)}
     />

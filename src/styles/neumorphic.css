@@ -257,9 +257,16 @@
   padding: 14px;
 }
 .lab-neu .viewport-stage { position: relative; border-radius: 12px; overflow: hidden; }
-/* The caption belongs to the case, not to the screen, so it sits outside the
-   recessed well on the light ground. */
-.lab-neu .viewport { gap: var(--sp-3); }
+/* `.viewport` carries a layered dark gradient and a heavy drop shadow for the
+   dark theme — the "lit bench" look. On the light case that reads as a dark
+   slab behind the caption, so the glow is dropped and the bezel's recess does
+   the framing instead. */
+.lab-neu .viewport {
+  background: none;
+  border: 0;
+  box-shadow: none;
+  gap: var(--sp-3);
+}
 .lab-neu .viewport-caption {
   color: var(--neu-muted);
   padding: 0 4px;

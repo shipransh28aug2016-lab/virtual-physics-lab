@@ -8,8 +8,11 @@ import {
   xOf,
   yOf,
   FocalMarks,
+  BENCH_W,
+  BENCH_H,
   type BenchRay
 } from '@/components/instruments/OpticsBench';
+import { makeRayScene } from '@/lab/scenes/rays';
 import { MirrorSvg } from '@/components/instruments/Instruments';
 import { ApparatusView } from '@/components/instruments/ApparatusView';
 import { col, num, ro } from '../experiments/_shared';
@@ -135,8 +138,14 @@ export function makeMirrorCompute(config: MirrorConfig) {
   };
 }
 
-export function makeMirrorStage(config: MirrorConfig) {
-  return function Stage({ params, set, control }: StageApi) {
+/**
+ * The ray construction for a mirror, in bench pixels.
+ *
+ * Exported so the SVG bench and the canvas light-packet overlay draw from the
+ * same list — the animation cannot put light on a path the diagram omits.
+ */
+export function makeMirrorRays(config: MirrorConfig) {
+  return function mirrorRays(params: ParamValues): BenchRay[] {
     const uCm = num(params, 'u', 30);
     const rCm = num(params, 'radius', 24);
     const hCm = num(params, 'height', 1.5);
@@ -188,6 +197,22 @@ export function makeMirrorStage(config: MirrorConfig) {
         }
       }
     }
+    return rays;
+  };
+}
+
+export function makeMirrorStage(config: MirrorConfig) {
+  const mirrorRays = makeMirrorRays(config);
+  return function Stage({ params, set, control }: StageApi) {
+    const uCm = num(params, 'u', 30);
+    const rCm = num(params, 'radius', 24);
+    const hCm = num(params, 'height', 1.5);
+    const g = benchGeometry(9);
+    const img = mirrorImage(uCm / 100, rCm / 100, config.concave, hCm / 100);
+    const oX = xOf(g, -uCm);
+    const fX = xOf(g, img.focalLength * 100);
+    const cX = xOf(g, config.concave ? -rCm : rCm);
+    const rays = mirrorRays(params);
 
     const title = `${config.concave ? 'Concave' : 'Convex'} mirror · R = ${rCm.toFixed(1)} cm · f = ${(img.focalLength * 100).toFixed(1)} cm`;
 
@@ -370,3 +395,28 @@ export const mirrorNotebook = (config: MirrorConfig) => {
     };
   };
 };
+
+
+/**
+ * Light packets travelling the mirror's own ray construction — the same
+ * `BenchRay` list the bench draws, so the two cannot disagree.
+ */
+export function makeMirrorScene(config: MirrorConfig) {
+  const mirrorRays = makeMirrorRays(config);
+  return makeRayScene({
+    width: BENCH_W,
+    height: BENCH_H,
+    rays: (params) => mirrorRays(params),
+    enabled: (params) => Boolean(params.showRays ?? true),
+    label: (params) => {
+      const uCm = num(params, 'u', 30);
+      const rCm = num(params, 'radius', 24);
+      const img = mirrorImage(uCm / 100, rCm / 100, config.concave, num(params, 'height', 1.5) / 100);
+      const nature = img.isReal ? 'real' : 'virtual';
+      const where = Number.isFinite(img.imageDistance)
+        ? `${Math.abs(img.imageDistance * 100).toFixed(1)} centimetre from the pole`
+        : 'at infinity';
+      return `Light from an object ${uCm.toFixed(1)} centimetre in front of a ${config.concave ? 'concave' : 'convex'} mirror of radius ${rCm.toFixed(1)} centimetre, forming a ${nature} image ${where}.`;
+    }
+  });
+}

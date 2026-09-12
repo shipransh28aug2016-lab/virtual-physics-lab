@@ -8,6 +8,8 @@ import { ApparatusView } from '@/components/instruments/ApparatusView';
 import { col, num, ro } from '../experiments/_shared';
 import { DragX, DragY, type StageApi } from '@/components/controls/StageKit';
 import { formatFixed } from '@/utils/format';
+import { makeRayScene } from '@/lab/scenes/rays';
+import { BENCH_W, BENCH_H } from '@/components/instruments/OpticsBench';
 
 export interface LensConfig {
   convex: boolean;
@@ -71,8 +73,15 @@ export function makeLensCompute(c: LensConfig) {
   };
 }
 
-export function makeLensStage(c: LensConfig) {
-  return function Stage({ params, set, control }: StageApi) {
+/**
+ * The ray construction for a lens, in bench pixels.
+ *
+ * Exported so the SVG bench and the canvas light-packet overlay draw from the
+ * same list: the animation cannot show light taking a path the diagram does not
+ * draw, because there is only one path list.
+ */
+export function makeLensRays(c: LensConfig) {
+  return function lensRays(params: ParamValues): BenchRay[] {
     const uCm = num(params, 'u', 30);
     const fCm = num(params, 'f', c.convex ? 15 : -15);
     const hCm = num(params, 'height', 1.5);
@@ -109,6 +118,22 @@ export function makeLensStage(c: LensConfig) {
         rays.push({ from: { x: f2X, y: oY + slopeC * (f2X - oX) }, to: { x: g.originX, y: g.axisY } });
       }
     }
+    return rays;
+  };
+}
+
+export function makeLensStage(c: LensConfig) {
+  const lensRays = makeLensRays(c);
+  return function Stage({ params, set, control }: StageApi) {
+    const uCm = num(params, 'u', 30);
+    const fCm = num(params, 'f', c.convex ? 15 : -15);
+    const hCm = num(params, 'height', 1.5);
+    const g = benchGeometry(9);
+    const img = lensImage(uCm / 100, fCm / 100, hCm / 100);
+    const oX = xOf(g, -uCm);
+    const fX = xOf(g, fCm);
+    const f2X = xOf(g, -fCm);
+    const rays = lensRays(params);
 
     const title = `${c.convex ? 'Convex' : 'Concave'} lens · f = ${fCm.toFixed(1)} cm · P = ${(100 / fCm).toFixed(2)} D`;
 
@@ -248,3 +273,30 @@ export const lensNotebook = (c: LensConfig) => {
     };
   };
 };
+
+
+/**
+ * Light packets travelling the lens's own ray construction.
+ *
+ * The packets follow the exact `BenchRay` list the bench draws, so the
+ * animation can never show light on a path the diagram does not contain.
+ */
+export function makeLensScene(c: LensConfig) {
+  const lensRays = makeLensRays(c);
+  return makeRayScene({
+    width: BENCH_W,
+    height: BENCH_H,
+    rays: (params) => lensRays(params),
+    enabled: (params) => Boolean(params.showRays ?? true),
+    label: (params) => {
+      const uCm = num(params, 'u', 30);
+      const fCm = num(params, 'f', c.convex ? 15 : -15);
+      const img = lensImage(uCm / 100, fCm / 100, num(params, 'height', 1.5) / 100);
+      const nature = img.isReal ? 'real' : 'virtual';
+      const where = Number.isFinite(img.imageDistance)
+        ? `${(img.imageDistance * 100).toFixed(1)} centimetre from the lens`
+        : 'at infinity';
+      return `Light from an object ${uCm.toFixed(1)} centimetre in front of a ${c.convex ? 'convex' : 'concave'} lens of focal length ${fCm.toFixed(1)} centimetre, forming a ${nature} image ${where}.`;
+    }
+  });
+}
