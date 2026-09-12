@@ -1,5 +1,12 @@
 import { PhysicsExperiment } from '@/components/shell/PhysicsExperiment';
-import { makeCoilDefinition, makeCoilCompute, makeCoilStage, makeCoilEducation, coilNotebook } from '../magnetism/_coilFactory';
+import {
+  makeCoilDefinition,
+  makeCoilCompute,
+  makeCoilStage,
+  makeCoilEducation,
+  makeCoilScene,
+  coilNotebook
+} from '../magnetism/_coilFactory';
 
 import { meta } from './anti-helmholtz-coil.meta';
 
@@ -9,6 +16,7 @@ const config = { mode: 'anti-helmholtz' as const, meta };
 
 const definition = makeCoilDefinition(config);
 const education = makeCoilEducation(config);
+const scene = makeCoilScene(config);
 
 export default function AntiHelmholtzCoilExperiment() {
   const Stage = makeCoilStage(config);
@@ -17,6 +25,7 @@ export default function AntiHelmholtzCoilExperiment() {
       definition={definition}
       education={education}
       compute={makeCoilCompute(config)}
+      scene={scene}
       renderStage={(api) => <Stage {...api} />}
       notebook={coilNotebook(config)}
     />

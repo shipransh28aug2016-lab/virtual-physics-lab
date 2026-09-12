@@ -54,6 +54,14 @@ export interface FieldSceneOptions {
   tracers?: number;
   /** Lets an experiment's own "show field" control switch the layer off. */
   enabled?: (params: ParamValues) => boolean;
+  /**
+   * Draw the grid of sample arrows. Turn it off where the apparatus already
+   * draws field *lines*: streamlines and a sampled arrow grid are two
+   * representations of the same field, and showing both at once is clutter
+   * rather than information. The tracers still run, which is the motion the
+   * static diagram was missing.
+   */
+  arrows?: boolean;
   disclosure?: string;
 }
 
@@ -106,8 +114,16 @@ export function makeFieldScene(options: FieldSceneOptions): CanvasScene {
     pitch = 46,
     tracers: tracerCount = 130,
     enabled,
-    disclosure = 'Field arrows and drifting markers are a visual construct — the field itself is continuous and does not flow.'
+    arrows = true,
+    disclosure
   } = options;
+  // The honesty label has to describe what is actually on the screen, so it
+  // follows whether the arrow grid is drawn.
+  const honesty =
+    disclosure ??
+    (arrows
+      ? 'Field arrows and drifting markers are a visual construct — the field itself is continuous and does not flow.'
+      : 'The drifting markers are a visual construct — the field itself is continuous and static; nothing travels along it.');
 
   let tracers: Tracer[] = [];
   let lastTime = Number.POSITIVE_INFINITY;
@@ -123,7 +139,7 @@ export function makeFieldScene(options: FieldSceneOptions): CanvasScene {
     label,
     width,
     height,
-    disclosure,
+    disclosure: honesty,
     draw({ ctx, params, model, time, dt }: SceneFrame) {
       if (enabled && !enabled(params)) {
         tracers = [];
@@ -158,11 +174,13 @@ export function makeFieldScene(options: FieldSceneOptions): CanvasScene {
       }
       if (peak <= 0) return;
 
-      for (const s of samples) {
-        fieldArrow(ctx, s.at, s.angle, compress(s.magnitude, peak / 60), {
-          color: INK.field,
-          maxLength: pitch * 0.78
-        });
+      if (arrows) {
+        for (const s of samples) {
+          fieldArrow(ctx, s.at, s.angle, compress(s.magnitude, peak / 60), {
+            color: INK.field,
+            maxLength: pitch * 0.78
+          });
+        }
       }
 
       /* ── tracers ──────────────────────────────────────────────────────── */

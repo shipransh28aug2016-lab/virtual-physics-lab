@@ -9,6 +9,7 @@ import type { ObservationRow } from '@/types/lab';
 import { formatSI } from '@/utils/format';
 import { col, num, ro } from '../experiments/_shared';
 import { DragX, Knob, type StageApi } from '@/components/controls/StageKit';
+import { makeAxialFieldScene } from '@/lab/scenes/axial-field';
 import { BenchBoard } from '@/components/instruments/BenchBoard';
 
 /**
@@ -317,3 +318,43 @@ export const coilNotebook = (c: CoilConfig) => ({ params: p }: { params: ParamVa
     extraFoot: [{ label: 'B(0)', value: `${(centre * 1e4).toFixed(4)} gauss at I = ${current.toFixed(1)} A` }]
   };
 };
+
+
+/**
+ * Markers drifting along the coil's axis, each at the field strength computed
+ * for its own position.
+ *
+ * The scale factor and the axis position are the ones the apparatus uses, so
+ * the markers run along the axis the SVG drew, through the coils it placed.
+ */
+export function makeCoilScene(c: CoilConfig) {
+  return makeAxialFieldScene({
+    width: 800,
+    height: 460,
+    enabled: (params) => Boolean(params.compass ?? true),
+    label: (params) => {
+      const current = num(params, 'current', 2);
+      const radius = num(params, 'radius', 10) / 100;
+      const length = num(params, 'length', 40) / 100;
+      const sep = c.mode === 'solenoid' ? undefined : length;
+      const centre = fieldAt(c.mode, current, radius, 0, length, sep);
+      return `Magnetic field along the axis, ${(centre * 1e4).toFixed(2)} gauss at the centre with ${current.toFixed(1)} ampere flowing.`;
+    },
+    layout: (params) => {
+      const current = num(params, 'current', 2);
+      const radius = num(params, 'radius', 10) / 100;
+      const length = num(params, 'length', 40) / 100;
+      const sep = c.mode === 'solenoid' ? undefined : length;
+      // The same pixels-per-centimetre the apparatus lays the coils out with.
+      const scale = c.mode === 'solenoid' ? 6 : 9;
+      return {
+        centreX: 400,
+        axisY: 180,
+        pxPerMetre: scale * 100,
+        span: Math.max(length, radius * 2) * 1.6,
+        spread: Math.max(radius * 100 * scale * 0.75, 22),
+        fieldAt: (xM: number) => fieldAt(c.mode, current, radius, xM, length, sep)
+      };
+    }
+  });
+}

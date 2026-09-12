@@ -4,6 +4,7 @@ import type { ModelOutput } from '@/components/shell/PhysicsExperiment';
 import { PhysicsExperiment } from '@/components/shell/PhysicsExperiment';
 import { SvgDefs } from '@/components/shell/Viewport';
 import { ChargeGlyph } from '@/components/instruments/Instruments';
+import { makeFieldScene } from '@/lab/scenes/field';
 import { electricFieldSuperposition, potentialPointCharge } from '@/physics-engine/electrostatics';
 import { mag2 } from '@/physics-engine/vectors';
 import { formatSI } from '@/utils/format';
@@ -232,12 +233,48 @@ function Stage({ params, set, control }: StageApi) {
   );
 }
 
+/**
+ * The live superposed field of the two charges, drifting markers and all.
+ *
+ * `scale` is 10 stage pixels per centimetre, so 1000 pixels per metre — the
+ * same mapping the apparatus uses to place the charges, which is what keeps the
+ * canvas arrows on the geometry the SVG drew.
+ */
+const scene = makeFieldScene({
+  width: W,
+  height: H,
+  // The apparatus already draws streamlines; the canvas contributes the motion
+  // along them, not a second static representation of the same field.
+  arrows: false,
+  tracers: 170,
+  enabled: (params) => bool(params, 'showLines', true),
+  label: (params) => {
+    const q1 = num(params, 'q1', 5);
+    const q2 = num(params, 'q2', -5);
+    const kind = q1 * q2 < 0 ? 'a dipole' : 'two like charges';
+    return `Live electric field of ${kind}: ${q1.toFixed(1)} and ${q2.toFixed(1)} microcoulomb, ${num(params, 'sep', 24).toFixed(0)} centimetre apart.`;
+  },
+  layout: (params) => {
+    const scale = 10; // stage pixels per centimetre
+    const sep = num(params, 'sep', 24);
+    return {
+      charges: [
+        { x: 400 - (sep * scale) / 2, y: CY, q: num(params, 'q1', 5) * 1e-6 },
+        { x: 400 + (sep * scale) / 2, y: CY, q: num(params, 'q2', -5) * 1e-6 }
+      ],
+      pxPerMetre: scale * 100,
+      bounds: { x: 30, y: 70, w: W - 60, h: 320 }
+    };
+  }
+});
+
 export default function ElectricFieldChargesExperiment() {
   return (
     <PhysicsExperiment
       definition={definition}
       education={education}
       compute={compute}
+      scene={scene}
       renderStage={(api) => <Stage {...api} />}
       notebook={({ params: p }) => {
         const q1 = num(p, 'q1', 5) * 1e-6;
