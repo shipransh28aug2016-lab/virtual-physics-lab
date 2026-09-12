@@ -19,6 +19,7 @@ import { useConnect } from '@/lab/interaction/useConnect';
 import { useSound } from '@/lab/audio';
 import { formatSI } from '@/utils/format';
 import { num, ro, str } from './_shared';
+import { makeCircuitScene } from '@/lab/scenes/circuit';
 import { Knob, type StageApi } from '@/components/controls/StageKit';
 
 import { meta } from './iv-characteristic.meta';
@@ -455,12 +456,25 @@ function Stage({ params, set, control }: StageApi) {
   );
 }
 
+/**
+ * Charge carriers travelling the leads the student wired, at a speed taken from
+ * the current the solver computed for each branch.
+ */
+const scene = makeCircuitScene({
+  graph: graphOf,
+  label: (_params, model) => {
+    const reading = model.readouts[0];
+    return `The diode bench as wired, carrying ${reading ? `${reading.value.toPrecision(3)} ${reading.unit}` : 'no current'}.`;
+  }
+});
+
 export default function IvCharacteristicExperiment() {
   return (
     <PhysicsExperiment
       definition={definition}
       education={education}
       compute={compute}
+      scene={scene}
       renderStage={(api) => <Stage {...api} />}
       viewportOverlay={(params) => {
         const r = readBench(params);

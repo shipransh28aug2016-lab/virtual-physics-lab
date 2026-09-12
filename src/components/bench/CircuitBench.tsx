@@ -2,11 +2,11 @@ import { useMemo, type ReactNode } from 'react';
 import { SvgDefs } from '@/components/shell/Viewport';
 import { BenchBoard } from '@/components/instruments/BenchBoard';
 import { decodeWires, terminal, type CircuitSolution, type Part } from '@/physics-engine/circuit';
-import { FLOW_DISCLOSURE } from '@/lab/motion';
 import type { ConnectApi } from '@/lab/interaction/useConnect';
 import { BenchPart, polarityOf, terminalLabel, terminalPoint } from './parts';
 import { Terminal } from './Terminal';
 import { BenchWire } from './Wire';
+import { wireCurrent } from './geometry';
 
 export interface CircuitBenchProps {
   parts: Part[];
@@ -60,25 +60,6 @@ export function CircuitBench({
 
   const wires = useMemo(() => decodeWires(wiring), [wiring]);
 
-  /**
-   * A lead's current is the current in the branch it belongs to. A lead joins
-   * two terminals, so the honest answer is the current in whichever part it is
-   * attached to — taken from the terminal the student plugged into, never
-   * guessed from the geometry.
-   */
-  const currentInWire = (from: string, to: string): number => {
-    for (const end of [from, to]) {
-      const partId = end.slice(0, end.lastIndexOf('.'));
-      const name = end.slice(end.lastIndexOf('.') + 1);
-      const part = byId.get(partId);
-      if (!part) continue;
-      const i = solution.current.get(partId) ?? 0;
-      if (Math.abs(i) < 1e-12) continue;
-      // Current leaves a part at `b`, so a lead on `b` carries it forwards.
-      return name === 'b' ? i : -i;
-    }
-    return 0;
-  };
 
   return (
     <svg viewBox={`0 0 ${VIEW_W} ${VIEW_H}`} className="svg-lab" preserveAspectRatio="xMidYMid meet">
@@ -100,9 +81,9 @@ export function CircuitBench({
           const a = points.get(w.from);
           const b = points.get(w.to);
           if (!a || !b) return null;
-          const i = currentInWire(w.from, w.to);
+          const i = wireCurrent(w.from, w.to, byId, solution);
           return (
-            <BenchWire key={w.id} from={a} to={b} current={i} live={live && Math.abs(i) > 1e-9} />
+            <BenchWire key={w.id} from={a} to={b} live={live && Math.abs(i) > 1e-9} />
           );
         })}
       </g>
@@ -151,10 +132,11 @@ export function CircuitBench({
       </g>
 
       {children}
-
-      <text x={VIEW_W / 2} y={VIEW_H - 12} textAnchor="middle" className="bench-disclosure">
-        {FLOW_DISCLOSURE}
-      </text>
+      {/*
+        The flow disclosure is drawn by the canvas carrier scene, which is what
+        actually animates now — printing it here as well put the same sentence
+        on the stage twice.
+      */}
     </svg>
   );
 }

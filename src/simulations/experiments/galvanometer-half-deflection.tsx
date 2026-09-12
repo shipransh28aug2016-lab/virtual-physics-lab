@@ -17,6 +17,7 @@ import { galvanometerResistanceHalfDeflection } from '@/physics-engine/circuits'
 import { useConnect } from '@/lab/interaction/useConnect';
 import { useSound } from '@/lab/audio';
 import { num, ro, str, bool } from './_shared';
+import { makeCircuitScene } from '@/lab/scenes/circuit';
 import { Knob, StageSwitch, type StageApi } from '@/components/controls/StageKit';
 
 import { meta } from './galvanometer-half-deflection.meta';
@@ -368,12 +369,25 @@ function Stage({ params, set, control }: StageApi) {
   );
 }
 
+/**
+ * Charge carriers travelling the leads the student wired, at a speed taken from
+ * the current the solver computed for each branch.
+ */
+const scene = makeCircuitScene({
+  graph: graphOf,
+  label: (_params, model) => {
+    const reading = model.readouts[0];
+    return `The half-deflection bench as wired, carrying ${reading ? `${reading.value.toPrecision(3)} ${reading.unit}` : 'no current'}.`;
+  }
+});
+
 export default function GalvanometerHalfDeflectionExperiment() {
   return (
     <PhysicsExperiment
       definition={definition}
       education={education}
       compute={compute}
+      scene={scene}
       renderStage={(api) => <Stage {...api} />}
       viewportOverlay={(params) => {
         const r = readBench(params);

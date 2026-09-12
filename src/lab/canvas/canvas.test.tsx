@@ -233,3 +233,29 @@ describe('display transforms', () => {
     expect(compress(5, 0)).toBe(0);
   });
 });
+
+describe('every shipped scene states what its animation is', () => {
+  it('gives the field, ray and circuit scenes an honesty label by default', async () => {
+    // A scene that animates a construct must say so. The SceneLayer draws
+    // `disclosure` automatically, so the guarantee is that each factory sets
+    // one rather than that a reviewer remembered to.
+    const [{ makeFieldScene }, { makeRayScene }, { makeCircuitScene }] = await Promise.all([
+      import('@/lab/scenes/field'),
+      import('@/lab/scenes/rays'),
+      import('@/lab/scenes/circuit')
+    ]);
+
+    const field = makeFieldScene({ label: () => 'x', layout: () => ({ charges: [], pxPerMetre: 1 }) });
+    const ray = makeRayScene({ label: () => 'x', rays: () => [] });
+    const circuit = makeCircuitScene({ label: () => 'x', graph: () => ({ parts: [], wires: [] }) });
+
+    for (const [name, scene] of [['field', field], ['ray', ray], ['circuit', circuit]] as const) {
+      expect(scene.disclosure, name).toBeTruthy();
+      expect(scene.disclosure!.length, name).toBeGreaterThan(30);
+    }
+
+    expect(field.disclosure).toMatch(/construct/i);
+    expect(ray.disclosure).toMatch(/nanosecond/i);
+    expect(circuit.disclosure).toMatch(/not literal electron drift/i);
+  });
+});
