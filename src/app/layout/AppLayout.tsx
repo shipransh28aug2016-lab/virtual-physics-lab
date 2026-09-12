@@ -4,6 +4,7 @@ import { BRAND } from '@/app/branding/brand';
 import { Icons } from '@/components/common/Icons';
 import { usePreferences } from '@/app/providers/PreferencesProvider';
 import { useT } from '@/i18n';
+import { useAudioUnlock } from '@/lab/audio';
 
 /** Shown while a code-split route or experiment module is loading. */
 export function RouteFallback() {
@@ -26,6 +27,9 @@ const NAV = [
 export function AppLayout({ children }: { children?: ReactNode }) {
   const prefs = usePreferences();
   const t = useT();
+  // Browsers refuse to start an AudioContext outside a gesture, so the shell
+  // arms it once rather than every control that might make a noise.
+  useAudioUnlock(prefs.sound, prefs.volume);
 
   return (
     <div className="app">
@@ -58,6 +62,24 @@ export function AppLayout({ children }: { children?: ReactNode }) {
               aria-label={prefs.lang === 'en' ? 'Switch to Hindi' : 'अंग्रेज़ी में देखें'}
             >
               <Icons.Globe width={14} height={14} /> {prefs.lang === 'en' ? 'हिन्दी' : 'EN'}
+            </button>
+            <button
+              type="button"
+              className="btn btn-sm btn-ghost"
+              aria-pressed={prefs.sound}
+              // Sound is off until it is asked for: a lab that makes noise on
+              // load is a lab a student mutes for good. The first click is also
+              // the gesture the browser needs before an AudioContext may start.
+              onClick={() => prefs.setSound(!prefs.sound)}
+              aria-label={prefs.sound ? 'Turn apparatus sound off' : 'Turn apparatus sound on'}
+              title="Clicks when a lead seats or a key is thrown. Never the only signal."
+            >
+              {prefs.sound ? (
+                <Icons.Speaker width={14} height={14} />
+              ) : (
+                <Icons.SpeakerMute width={14} height={14} />
+              )}
+              {prefs.sound ? 'Sound on' : 'Sound off'}
             </button>
             <button
               type="button"

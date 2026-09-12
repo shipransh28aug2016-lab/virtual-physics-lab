@@ -36,8 +36,11 @@ export interface SimulatorShellProps {
   overlay?: ReactNode;
   notebookSpec?: NotebookSpec;
   notebookRows: NotebookRow[];
+  notebookConclusion: string;
   onRecord: () => void;
   onRemoveRow: (n: number) => void;
+  onAnnotateRow: (n: number, note: string) => void;
+  onConclusion: (text: string) => void;
   onClearNotebook: () => void;
 }
 
@@ -51,8 +54,11 @@ export function SimulatorShell({
   overlay,
   notebookSpec,
   notebookRows,
+  notebookConclusion,
   onRecord,
   onRemoveRow,
+  onAnnotateRow,
+  onConclusion,
   onClearNotebook
 }: SimulatorShellProps) {
   const [tab, setTab] = useState<Tab>('theory');
@@ -164,8 +170,13 @@ export function SimulatorShell({
           <LabNotebook
             spec={notebookSpec}
             rows={notebookRows}
+            title={definition.title}
+            slug={definition.slug}
+            conclusion={notebookConclusion}
             onRecord={onRecord}
             onRemove={onRemoveRow}
+            onAnnotate={onAnnotateRow}
+            onConclusion={onConclusion}
             onClear={onClearNotebook}
           />
         ) : null}

@@ -53,7 +53,9 @@ src/
   physics-engine/   PURE model. No React. SI units internally.
     constants units vectors numerical validation
     circuits electrostatics magnetism optics quantum waves-acoustics
+    circuit/        graph · solve (MNA) · faults · encode  ← the bench engine
     physics.test.ts  ← NCERT anchor values
+  lab/              motion tokens · audio bus · interaction · feedback rules
   experiments/      registry.ts (glob loader) + catalogue.test.ts
   simulations/
     experiments/    ONE file per experiment = the whole simulator
@@ -63,6 +65,7 @@ src/
     shell/          PhysicsExperiment (wiring) + SimulatorShell (chrome) + Viewport
     controls/       StageKit (on-apparatus handles) + Controls (bench dock)
     instruments/    CircuitBoard · OpticsBench · Instruments · BenchBoard
+    bench/          CircuitBench · Terminal · Wire · part glyphs
     charts/ lab-notebook/ math/ common/
   app/              routing, layout, branding, providers
   pages/            Home, Simulators, Class12, Unit, Practicals, Section, Experiment
@@ -141,6 +144,9 @@ bench dock. This is what makes the lab feel like a real bench.
 | Add an experiment | new `src/simulations/experiments/<slug>.tsx` + `.meta.ts`, then `npm run catalogue` |
 | Change physics | `src/physics-engine/<domain>.ts` + an anchor in `physics.test.ts` |
 | Add an instrument drawing | `src/components/instruments/*` |
+| Put an experiment on the bench | `src/components/bench/*` + `physics-engine/circuit/*` |
+| Add a sound cue | `src/lab/audio/sounds.ts` (synthesised — never an asset) |
+| Add a motion | `src/lab/motion/tokens.ts` (a token must state its meaning) |
 | Change shell/panels/tabs | `src/components/shell/SimulatorShell.tsx` |
 | Change on-apparatus handles | `src/components/controls/StageKit.tsx` |
 | Change look/theme | `src/styles/lab.css` (tokens) + `lab-scene.css` (scene) |
@@ -150,7 +156,7 @@ bench dock. This is what makes the lab feel like a real bench.
 
 **Invariants the audits rely on (do not rename):** `svg.svg-lab`,
 `.stage-ctl[role="slider"]`, `.readout`, `path.chart-series`, `.stage-bench`,
-`.stage-pin`, `.viewport-stage`.
+`.stage-pin`, `.viewport-stage`, `.bench-terminal`, `.bench-wire`.
 
 **Routes must stay keyed.** `AppRoutes` gives each experiment route
 `key={mod.meta.slug}`. Without it React reconciles one experiment page into the
@@ -207,10 +213,26 @@ fall back.
 Physically-based materials and soft shadows on the 3D bench; knob inertia,
 detents and needle easing (respecting reduced motion).
 
+### 6.2b The bench (delivered in 2.0)
+
+`src/physics-engine/circuit/` models a circuit as parts, terminals and wires,
+resolves nodes by union-find, solves by modified nodal analysis with a Newton
+loop for the diode, and derives faults from the graph rather than from authored
+branches. The netlist is carried as an ordinary experiment parameter — a
+canonical encoded string — so a reading is traceable to the circuit it came
+from. Geometry never defines topology.
+
+Extend it to the remaining circuit practicals in this order: A1, A4, A5, then
+`battery-series-parallel`. A3 is a metre bridge and should stay as it is —
+classified KEEP, not REPLACE. See `docs/architecture/README.md`.
+
 ### 6.3 The AI layer
 - a **tutor copilot** that reads the live `ModelOutput` and the notebook rows
-  and produces hints, viva follow-ups and "why is my graph bent?" diagnostics
-  (rule-based first, LLM optional);
+  and produces hints, viva follow-ups and "why is my graph bent?" diagnostics.
+  The rule-based half is built: `src/lab/feedback/rules.ts` answers with an
+  observation, an explanation in syllabus language and a physical next action.
+  An LLM layer sits *above* it and is fed the same validated state — it must
+  never become the source of the physics;
 - **adaptive difficulty** and a guided procedure mode that highlights the next
   real control;
 - **automatic error analysis** from recorded trials — the theory-vs-experiment
@@ -233,14 +255,17 @@ detents and needle easing (respecting reduced motion).
 
 ## 7 · Current state
 
-- **46 experiment modules**; **15 listed practicals** (A1–A6, B1–B9) aligned to
+- **49 experiment modules**; **15 listed practicals** (A1–A6, B1–B9) aligned to
   CBSE 2026-27, plus one Section B activity.
+- **Digital circuit bench**: the student wires the circuit, and seven kinds of
+  wrong connection behave like wrong connections. `ohms-law` and
+  `iv-characteristic` are the reference implementations.
 - Controls live **on the apparatus**; the dock carries only what is left over.
 - Clean Modern Card UI (solid surfaces, soft shadows, no glassmorphism).
-- Bilingual EN ⇄ NCERT Devanagari, 46/46 translated, persisted, fallback-safe.
-- **491 tests pass**; `tsc` and `eslint --max-warnings=0` are clean.
-- Placement audit: **46/46 · 0 defects · 0 overlaps**, over http and `file://`.
-- Portable single file ≈ 792 kB, verified to run from `file://`.
+- Bilingual EN ⇄ NCERT Devanagari, persisted, fallback-safe.
+- **632 tests pass**; `tsc` and `eslint --max-warnings=0` are clean.
+- Placement audit: **49/49 · 0 defects · 0 overlaps**, over http and `file://`.
+- Portable single file ≈ 868 kB, verified to run from `file://`.
 
 ### A note on how this repo arrived
 
