@@ -66,6 +66,15 @@ gesture: press a socket to pick a lead up, press a second to put it down. There
 is **one** code path for pointer, touch and keyboard, which is why the two can
 never drift apart. See `docs/accessibility/README.md`.
 
+## The canvas layer
+
+Physics entities that move every frame are painted on a `<canvas>` in a
+`requestAnimationFrame` loop; the apparatus and every control stay SVG and keep
+their accessibility tree and their audit selectors. `PhysicsEngine` holds state
+in SI units with a pure integrator; `CanvasStage` owns the loop, the device
+pixel ratio and the resize; `SceneLayer` bridges live React state into the loop
+through refs so no frame waits on a re-render. See `docs/canvas/README.md`.
+
 ## Motion and audio
 
 Seven motion tokens with stated meanings (`docs/animation/README.md`); one

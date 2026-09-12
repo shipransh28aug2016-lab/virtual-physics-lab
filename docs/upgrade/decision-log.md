@@ -184,3 +184,57 @@ dependency edge to a build script for a weaker guarantee).
 **Impact.** `npm run build:portable` now exits non-zero rather than emitting a
 broken offline file, and CI runs it on every push. The failure mode is
 impossible to ship silently again.
+
+---
+
+## D9 · Canvas for the entities, DOM for the instrument
+
+**Decision.** Physics entities that move every frame are painted on a `<canvas>`
+in a `requestAnimationFrame` loop. The apparatus, its instruments and every
+control stay SVG. The canvas is an overlay, never a replacement.
+
+**Reason.** A full-canvas route would lose two things that took the whole 2.0
+effort to build: the Chromium placement audit, which queries `svg.svg-lab`,
+`.stage-ctl` and `.readout` and cannot see into a canvas; and the accessibility
+tree, since a canvas has none — no `role="slider"`, no `aria-valuenow`, no
+keyboard reach, no focus ring. Neither can be recovered without building a
+parallel shadow DOM, which is a second source of truth and therefore a second
+thing to drift.
+
+The entities genuinely belong on the canvas: a hundred moving markers cost a
+hundred draw calls rather than a hundred layout passes.
+
+**Alternatives.** Everything on canvas (the literal reading of the brief);
+canvas overlay only, apparatus untouched (smaller, but the entities stay
+static).
+
+**Tradeoff.** Two renderers per upgraded experiment, and a scene must declare a
+logical size matching the apparatus's viewBox or the layers misalign.
+
+**Impact.** All 49 routes keep their audit and their accessibility. Adding a
+scene to an experiment is additive and reversible.
+
+---
+
+## D10 · A scene is per-experiment work, and that is the honest cost
+
+**Decision.** Canvas scenes are written against each experiment's own geometry,
+grouped into families that share physics. No generic "ambient" scene is applied
+across the catalogue.
+
+**Reason.** A scene that is not driven by that experiment's model is decoration,
+and §42 rules out exactly that: "fake glowing electricity with no model
+relationship", "unnecessary particle effects". Every scene shipped here draws
+from the same numbers the readouts do — the superposed field, the ray
+construction, the solved branch current, B(x) on the axis, the resonance
+amplitude. That is what makes moving a control visibly change the picture for
+the right reason.
+
+**Alternatives.** A universal particle layer driven by `ModelOutput.readouts`,
+which would have covered all 49 immediately and meant nothing on any of them.
+
+**Tradeoff.** Coverage grows one experiment at a time. Twelve have scenes; the
+rest keep an SVG apparatus that is already model-driven.
+
+**Impact.** Five reusable scene families exist, so the next experiment in a
+covered family is a layout function rather than a new renderer.

@@ -12,6 +12,7 @@ import {
 import { mergeIssues, validatePositive, validateRange } from '@/physics-engine/validation';
 import { col, num, ro, singleSeriesGraph } from './_shared';
 import { DragX, Knob, type StageApi } from '@/components/controls/StageKit';
+import { makeStandingWaveScene } from '@/lab/scenes/standing-wave';
 
 import { meta } from './sonometer.meta';
 
@@ -261,12 +262,44 @@ function Stage({ params, set, control }: StageApi) {
   );
 }
 
+/**
+ * The wire vibrating in its fundamental mode.
+ *
+ * Amplitude comes from the model's sharply peaked resonance factor, so the
+ * string only swings when the bridge is within a whisker of the resonant
+ * length — which is exactly when the paper rider would fly off.
+ */
+const scene = makeStandingWaveScene({
+  enabled: (params) => params.magnet !== false,
+  label: (params) => {
+    const m = model(params);
+    return m.amplitude > 0.5
+      ? `The sonometer wire resonating at ${m.wireFrequency.toFixed(1)} hertz between bridges ${m.lengthCm.toFixed(1)} centimetre apart.`
+      : `The sonometer wire nearly still: at ${m.lengthCm.toFixed(1)} centimetre its natural frequency is ${m.wireFrequency.toFixed(1)} hertz, away from the ${m.driveHz.toFixed(0)} hertz drive.`;
+  },
+  layout: (params) => {
+    const m = model(params);
+    // The same span and rest position the apparatus draws the wire at.
+    const x0 = 130;
+    const span = 560;
+    return {
+      x0,
+      x1: x0 + (m.lengthCm / 90) * span,
+      y: 250,
+      amplitude: m.amplitude * 26,
+      frequency: m.wireFrequency,
+      mode: 1
+    };
+  }
+});
+
 export default function SonometerExperiment() {
   return (
     <PhysicsExperiment
       definition={definition}
       education={education}
       compute={compute}
+      scene={scene}
       renderStage={(api) => <Stage {...api} />}
       viewportOverlay={(params) => {
         const m = model(params);
