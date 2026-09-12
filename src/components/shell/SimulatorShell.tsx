@@ -14,6 +14,7 @@ import { Chip } from '@/components/common/UI';
 import { formatFixed, formatSI } from '@/utils/format';
 import { unitInfo } from '@/data/units';
 import { useLocalized } from '@/i18n';
+import { SceneLayer, type CanvasScene } from '@/lab/canvas';
 
 const TABS = ['theory', 'formulae', 'variables', 'procedure', 'precautions', 'viva'] as const;
 type Tab = (typeof TABS)[number];
@@ -34,6 +35,8 @@ export interface SimulatorShellProps {
   lab: LabState;
   stage: ReactNode;
   overlay?: ReactNode;
+  /** Canvas render layer for the physics entities, over the SVG apparatus. */
+  scene?: CanvasScene;
   notebookSpec?: NotebookSpec;
   notebookRows: NotebookRow[];
   notebookConclusion: string;
@@ -52,6 +55,7 @@ export function SimulatorShell({
   lab,
   stage,
   overlay,
+  scene,
   notebookSpec,
   notebookRows,
   notebookConclusion,
@@ -76,7 +80,7 @@ export function SimulatorShell({
   const warnings = issues.filter((i) => i.severity === 'warning');
 
   return (
-    <article className="simulator">
+    <article className="simulator lab-neu">
       <header className="sim-head page">
         <nav className="breadcrumb" aria-label="Breadcrumb">
           <Link to="/simulators">Simulators</Link>
@@ -101,7 +105,13 @@ export function SimulatorShell({
 
       <div className="page sim-grid">
         <div className="sim-main">
-          <Viewport overlay={overlay} caption={model.description}>
+          <Viewport
+            overlay={overlay}
+            caption={model.description}
+            canvas={
+              scene ? <SceneLayer scene={scene} params={lab.params} model={model} /> : undefined
+            }
+          >
             {stage}
           </Viewport>
 

@@ -1,0 +1,401 @@
+/*
+ * Neumorphic lab equipment.
+ *
+ * Scoped to `.lab-neu`, which the simulator surface carries — the catalogue,
+ * the unit pages and the site chrome keep the dark theme. That scoping is
+ * deliberate: a soft-shadow light panel reads as a physical instrument case,
+ * and a page of them reads as glare.
+ *
+ * The palette and the two shadows are the brief's, verbatim.
+ */
+
+.lab-neu {
+  --bg-color: #e0e5ec;
+  --text-color: #4a5568;
+  --neumorphic-outset:
+    9px 9px 16px rgba(163, 177, 198, 0.6),
+    -9px -9px 16px rgba(255, 255, 255, 0.5);
+  --neumorphic-inset:
+    inset 6px 6px 10px 0 rgba(163, 177, 198, 0.7),
+    inset -6px -6px 10px 0 rgba(255, 255, 255, 0.8);
+  --neu-accent: #3182ce;
+  --neu-muted: #718096;
+  --neu-line: rgba(163, 177, 198, 0.45);
+  /* An LED readout wants a monospace face with wide, even digits. A webfont
+     would need the network, and the portable build has none — so the readout
+     earns its look from letter-spacing, colour and a recessed well instead. */
+  --neu-led: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+
+  background: var(--bg-color);
+  color: var(--text-color);
+  border-radius: 20px;
+  padding: var(--sp-4);
+}
+
+/* ── surfaces ───────────────────────────────────────────────────────────── */
+
+.neu-panel {
+  background: var(--bg-color);
+  border-radius: 18px;
+  box-shadow: var(--neumorphic-outset);
+  padding: var(--sp-4);
+}
+.neu-well {
+  background: var(--bg-color);
+  border-radius: 16px;
+  box-shadow: var(--neumorphic-inset);
+  padding: var(--sp-3);
+}
+.lab-neu h2,
+.lab-neu h3 {
+  color: #2d3748;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+}
+.lab-neu .neu-legend {
+  color: var(--neu-muted);
+  font-size: 0.76rem;
+}
+
+/* ── buttons ────────────────────────────────────────────────────────────── */
+
+.neu-btn {
+  appearance: none;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.84rem;
+  color: var(--text-color);
+  background: var(--bg-color);
+  border-radius: 12px;
+  padding: 9px 16px;
+  box-shadow: var(--neumorphic-outset);
+  transition: box-shadow 120ms ease, color 120ms ease, transform 120ms ease;
+}
+.neu-btn:hover:not(:disabled) { color: var(--neu-accent); }
+/* Pressing a physical button pushes it into its case. */
+.neu-btn:active:not(:disabled) {
+  box-shadow: var(--neumorphic-inset);
+  transform: translateY(1px);
+}
+.neu-btn[aria-pressed='true'],
+.neu-btn.is-on {
+  box-shadow: var(--neumorphic-inset);
+  color: var(--neu-accent);
+}
+.neu-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.neu-btn:focus-visible {
+  outline: 2px solid var(--neu-accent);
+  outline-offset: 3px;
+}
+
+/* ── sliders ────────────────────────────────────────────────────────────── */
+
+.lab-neu input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 26px;
+  background: transparent;
+  cursor: grab;
+  margin: 0;
+}
+.lab-neu input[type='range']:active { cursor: grabbing; }
+
+/* The track is a groove milled into the case, so it uses the inset shadow. */
+.lab-neu input[type='range']::-webkit-slider-runnable-track {
+  height: 14px;
+  border-radius: 7px;
+  background: var(--bg-color);
+  box-shadow: var(--neumorphic-inset);
+}
+.lab-neu input[type='range']::-moz-range-track {
+  height: 14px;
+  border-radius: 7px;
+  background: var(--bg-color);
+  box-shadow: var(--neumorphic-inset);
+}
+.lab-neu input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  margin-top: -5px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #f2f6fb, #c8cfd8);
+  box-shadow: 3px 3px 6px rgba(163, 177, 198, 0.7), -3px -3px 6px rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+}
+.lab-neu input[type='range']::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #f2f6fb, #c8cfd8);
+  box-shadow: 3px 3px 6px rgba(163, 177, 198, 0.7), -3px -3px 6px rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+}
+.lab-neu input[type='range']:focus-visible::-webkit-slider-thumb { outline: 2px solid var(--neu-accent); outline-offset: 2px; }
+.lab-neu input[type='range']:focus-visible::-moz-range-thumb { outline: 2px solid var(--neu-accent); outline-offset: 2px; }
+.lab-neu input[type='range']:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* ── digital readouts ───────────────────────────────────────────────────── */
+
+.neu-readout {
+  display: grid;
+  gap: 4px;
+  background: var(--bg-color);
+  border-radius: 12px;
+  box-shadow: var(--neumorphic-inset);
+  padding: 10px 12px;
+  min-width: 0;
+}
+.neu-readout-label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--neu-muted);
+  font-weight: 600;
+}
+.neu-readout-value {
+  font-family: var(--neu-led);
+  font-size: 1.12rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #1a365d;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.neu-readout-value i {
+  font-style: normal;
+  font-size: 0.76em;
+  color: var(--neu-muted);
+  letter-spacing: 0.02em;
+}
+.neu-readout-sub { font-size: 0.7rem; color: var(--neu-muted); }
+.neu-readout.tone-alert .neu-readout-value { color: #c53030; }
+.neu-readout.tone-neg .neu-readout-value { color: #2b6cb0; }
+.neu-readout.tone-dim .neu-readout-value { color: var(--neu-muted); }
+
+/* ── control rows ───────────────────────────────────────────────────────── */
+
+.neu-control { display: grid; gap: 7px; }
+.neu-control-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--sp-3);
+}
+.neu-control-label { font-size: 0.8rem; font-weight: 600; color: var(--text-color); }
+.neu-control-value {
+  font-family: var(--neu-led);
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #1a365d;
+  font-variant-numeric: tabular-nums;
+}
+.neu-control-hint { margin: 0; font-size: 0.72rem; color: var(--neu-muted); }
+.neu-control.is-disabled { opacity: 0.5; }
+
+.neu-segmented { display: flex; gap: 6px; flex-wrap: wrap; }
+
+/* ── the canvas stage ───────────────────────────────────────────────────── */
+
+.canvas-stage { display: block; width: 100%; height: 100%; }
+/* Over the SVG apparatus: the picture is the canvas, the controls underneath
+   stay real elements, so every pointer and every Tab reaches them. */
+.canvas-stage.is-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+ * Mapping the existing simulator markup onto the neumorphic case.
+ *
+ * Done in CSS against the classes the shell already emits rather than by
+ * rewriting 49 experiments' markup: every ARIA role, every audit selector and
+ * every test stays exactly where it was, and all 49 change together.
+ * ────────────────────────────────────────────────────────────────────────── */
+
+.lab-neu .panel {
+  background: var(--bg-color);
+  border: 0;
+  border-radius: 18px;
+  box-shadow: var(--neumorphic-outset);
+}
+.lab-neu .panel-head {
+  border-bottom: 1px solid var(--neu-line);
+  background: transparent;
+}
+.lab-neu .panel-head h2 { color: #2d3748; }
+.lab-neu .muted,
+.lab-neu .control-hint,
+.lab-neu .viewport-caption { color: var(--neu-muted); }
+.lab-neu .prose,
+.lab-neu p,
+.lab-neu li,
+.lab-neu dd { color: var(--text-color); }
+.lab-neu h1,
+.lab-neu h3,
+.lab-neu dt,
+.lab-neu .sim-aim { color: #2d3748; }
+.lab-neu .eyebrow,
+.lab-neu .breadcrumb { color: var(--neu-muted); }
+.lab-neu a { color: var(--neu-accent); }
+
+/* The apparatus screen is sunk into the case; the stage itself stays dark,
+   because the instruments are drawn for a dark ground. */
+.lab-neu .viewport-bezel {
+  background: var(--bg-color);
+  border: 0;
+  border-radius: 20px;
+  box-shadow: var(--neumorphic-inset);
+  padding: 14px;
+}
+.lab-neu .viewport-stage { position: relative; border-radius: 12px; }
+
+/* Measurements become recessed LED wells. `.readout` keeps its class — the
+   placement audit counts them, and the notebook and charts reuse it. */
+.lab-neu .readout-cell {
+  background: var(--bg-color);
+  border: 0;
+  border-radius: 12px;
+  box-shadow: var(--neumorphic-inset);
+  padding: 10px 12px;
+}
+.lab-neu .readout-label { color: var(--neu-muted); letter-spacing: 0.07em; }
+.lab-neu .readout {
+  font-family: var(--neu-led);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.05em;
+  color: #1a365d;
+  font-weight: 700;
+}
+.lab-neu .readout i { color: var(--neu-muted); font-weight: 600; }
+.lab-neu .readout-sub { color: var(--neu-muted); }
+.lab-neu .readout-cell.tone-alert .readout { color: #c53030; }
+.lab-neu .readout-cell.tone-neg .readout { color: #2b6cb0; }
+.lab-neu .readout-cell.tone-dim .readout { color: var(--neu-muted); }
+
+/* Controls: the label row stays plain, the track is a milled groove. */
+.lab-neu .control-label { color: var(--text-color); font-weight: 600; }
+.lab-neu .control-value {
+  font-family: var(--neu-led);
+  color: #1a365d;
+  font-weight: 700;
+}
+
+.lab-neu .btn,
+.lab-neu .switch-btn,
+.lab-neu .segmented-btn,
+.lab-neu .tab,
+.lab-neu .icon-btn {
+  background: var(--bg-color);
+  border: 0;
+  color: var(--text-color);
+  border-radius: 12px;
+  box-shadow: var(--neumorphic-outset);
+  transition: box-shadow 120ms ease, color 120ms ease;
+}
+.lab-neu .btn:hover:not(:disabled),
+.lab-neu .switch-btn:hover:not(:disabled),
+.lab-neu .segmented-btn:hover:not(:disabled),
+.lab-neu .tab:hover,
+.lab-neu .icon-btn:hover { color: var(--neu-accent); background: var(--bg-color); }
+
+.lab-neu .btn:active:not(:disabled),
+.lab-neu .switch-btn:active:not(:disabled),
+.lab-neu .segmented-btn:active:not(:disabled),
+.lab-neu .icon-btn:active { box-shadow: var(--neumorphic-inset); }
+
+/* A control that is engaged stays pushed in, the way a latching switch does. */
+.lab-neu .switch-btn.is-on,
+.lab-neu .segmented-btn.is-active,
+.lab-neu .tab.is-active,
+.lab-neu .btn[aria-pressed='true'] {
+  box-shadow: var(--neumorphic-inset);
+  color: var(--neu-accent);
+  font-weight: 700;
+}
+.lab-neu .btn-primary { color: var(--neu-accent); font-weight: 700; }
+.lab-neu .btn:disabled,
+.lab-neu .switch-btn:disabled,
+.lab-neu .segmented-btn:disabled { opacity: 0.45; }
+.lab-neu .btn:focus-visible,
+.lab-neu .switch-btn:focus-visible,
+.lab-neu .segmented-btn:focus-visible,
+.lab-neu .tab:focus-visible,
+.lab-neu .icon-btn:focus-visible {
+  outline: 2px solid var(--neu-accent);
+  outline-offset: 3px;
+}
+
+.lab-neu .tabs { border-bottom: 1px solid var(--neu-line); gap: 8px; }
+
+.lab-neu select,
+.lab-neu input[type='text'],
+.lab-neu textarea {
+  background: var(--bg-color);
+  color: var(--text-color);
+  border: 0;
+  border-radius: 12px;
+  box-shadow: var(--neumorphic-inset);
+  padding: 9px 12px;
+  font: inherit;
+}
+.lab-neu select:focus-visible,
+.lab-neu input[type='text']:focus-visible,
+.lab-neu textarea:focus-visible {
+  outline: 2px solid var(--neu-accent);
+  outline-offset: 2px;
+}
+
+.lab-neu .notebook-table th,
+.lab-neu .var-table th { color: var(--neu-muted); }
+.lab-neu .notebook-table td,
+.lab-neu .notebook-table th,
+.lab-neu .var-table td,
+.lab-neu .var-table th { border-bottom-color: var(--neu-line); }
+.lab-neu .notebook-note { color: var(--text-color); }
+.lab-neu .notebook-note:focus { background: var(--bg-color); box-shadow: var(--neumorphic-inset); border-color: transparent; }
+.lab-neu .empty-state { border-color: var(--neu-line); color: var(--neu-muted); }
+.lab-neu .formula-list li {
+  background: var(--bg-color);
+  border: 0;
+  box-shadow: var(--neumorphic-inset);
+}
+.lab-neu .chip {
+  background: var(--bg-color);
+  border: 0;
+  color: var(--neu-muted);
+  box-shadow: var(--neumorphic-outset);
+}
+.lab-neu .callout {
+  background: var(--bg-color);
+  border: 0;
+  box-shadow: var(--neumorphic-outset);
+  color: var(--text-color);
+}
+.lab-neu .callout-danger { color: #c53030; }
+.lab-neu .callout-warning { color: #b7791f; }
+
+/* Motion off, or the OS asking for less: the case stops responding to presses
+   with movement, but every shadow state still reads. */
+@media (prefers-reduced-motion: reduce) {
+  .lab-neu .btn,
+  .lab-neu .neu-btn,
+  .lab-neu .switch-btn,
+  .lab-neu .segmented-btn,
+  .lab-neu .tab { transition: none; }
+  .lab-neu .neu-btn:active:not(:disabled) { transform: none; }
+}
+[data-motion='off'] .lab-neu .btn,
+[data-motion='off'] .lab-neu .neu-btn,
+[data-motion='off'] .lab-neu .switch-btn,
+[data-motion='off'] .lab-neu .segmented-btn,
+[data-motion='off'] .lab-neu .tab { transition: none; }
+[data-motion='off'] .lab-neu .neu-btn:active:not(:disabled) { transform: none; }

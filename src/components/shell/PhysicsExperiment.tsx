@@ -13,6 +13,7 @@ import type { ObservationRow } from '@/types/lab';
 import { useLabState } from '@/hooks/useLabState';
 import { useNotebook } from '@/hooks/useNotebook';
 import { SimulatorShell } from '@/components/shell/SimulatorShell';
+import type { CanvasScene } from '@/lab/canvas';
 
 /** Everything `compute` gives back. The view never invents any of it. */
 export interface ModelOutput {
@@ -36,6 +37,11 @@ export interface PhysicsExperimentProps {
     rows: ObservationRow[];
   }) => NotebookSpec;
   viewportOverlay?: (params: ParamValues, model: ModelOutput) => ReactNode;
+  /**
+   * Optional canvas layer for the entities that move every frame. The SVG
+   * apparatus from `renderStage` stays underneath and keeps the controls.
+   */
+  scene?: CanvasScene;
 }
 
 /**
@@ -49,7 +55,8 @@ export function PhysicsExperiment({
   compute,
   renderStage,
   notebook,
-  viewportOverlay
+  viewportOverlay,
+  scene
 }: PhysicsExperimentProps) {
   const lab = useLabState(definition);
   const book = useNotebook(definition.slug);
@@ -103,6 +110,7 @@ export function PhysicsExperiment({
       lab={lab}
       stage={renderStage(stageApi)}
       overlay={viewportOverlay?.(lab.params, model)}
+      scene={scene}
       notebookSpec={notebookSpec}
       notebookRows={book.rows}
       notebookConclusion={book.conclusion}

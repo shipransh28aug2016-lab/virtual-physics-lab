@@ -5,6 +5,7 @@ import { PreferencesProvider } from '@/app/providers/PreferencesProvider';
 import { AppRoutes } from '@/app/routes/AppRoutes';
 import '@/styles/lab.css';
 import '@/styles/lab-scene.css';
+import '@/styles/neumorphic.css';
 
 // The portable single-file build runs from file://, where only a hash router
 // can resolve routes. The same route table serves both.

@@ -69,14 +69,28 @@ export interface ViewportProps {
   children: ReactNode;
   overlay?: ReactNode;
   caption?: string;
+  /**
+   * The canvas render layer, drawn over the SVG apparatus.
+   *
+   * The split is deliberate and is what "hybrid" means here: the apparatus —
+   * bench, instruments, scales, labels and every control — stays as SVG, so it
+   * keeps its accessibility tree and the placement audit can still see it;
+   * the physics entities that move every frame are painted on the canvas, so a
+   * hundred of them cost a hundred draw calls rather than a hundred layout
+   * passes.
+   */
+  canvas?: ReactNode;
 }
 
 /** The lit bench: bezel, backing board and the experiment SVG scaled to fill. */
-export function Viewport({ children, overlay, caption }: ViewportProps) {
+export function Viewport({ children, overlay, caption, canvas }: ViewportProps) {
   return (
     <div className="viewport">
       <div className="viewport-bezel">
-        <div className="viewport-stage stage-bench">{children}</div>
+        <div className="viewport-stage stage-bench">
+          {children}
+          {canvas}
+        </div>
         {overlay ? <div className="viewport-overlay">{overlay}</div> : null}
       </div>
       {caption ? <p className="viewport-caption muted">{caption}</p> : null}
