@@ -11,6 +11,7 @@ import {
   type BenchRay
 } from '@/components/instruments/OpticsBench';
 import { MirrorSvg } from '@/components/instruments/Instruments';
+import { ApparatusView } from '@/components/instruments/ApparatusView';
 import { col, num, ro } from '../experiments/_shared';
 import { DragX, DragY, type StageApi } from '@/components/controls/StageKit';
 import { formatFixed } from '@/utils/format';
@@ -188,59 +189,73 @@ export function makeMirrorStage(config: MirrorConfig) {
       }
     }
 
+    const title = `${config.concave ? 'Concave' : 'Convex'} mirror · R = ${rCm.toFixed(1)} cm · f = ${(img.focalLength * 100).toFixed(1)} cm`;
+
     return (
-      <OpticsBench
-        geometry={g}
-        rays={rays}
-        objectX={oX}
-        objectHeight={hCm}
-        image={img}
-        title={`${config.concave ? 'Concave' : 'Convex'} mirror · R = ${rCm.toFixed(1)} cm · f = ${(img.focalLength * 100).toFixed(1)} cm`}
-        subtitle={`u = ${uCm.toFixed(1)} cm → v = ${(img.imageDistance * 100).toFixed(2)} cm · m = ${img.magnification.toFixed(3)}`}
-        optic={
-          <>
-            <MirrorSvg
+      <ApparatusView
+        ray2d={
+          <OpticsBench
+            geometry={g}
+            rays={rays}
+            objectX={oX}
+            objectHeight={hCm}
+            image={img}
+            title={title}
+            subtitle={`u = ${uCm.toFixed(1)} cm → v = ${(img.imageDistance * 100).toFixed(2)} cm · m = ${img.magnification.toFixed(3)}`}
+            optic={
+              <>
+                <MirrorSvg
+                  x={g.originX}
+                  y={g.axisY}
+                  radius={(rCm * g.scale) / 100}
+                  concave={config.concave}
+                  height={210}
+                  label="Pole P"
+                />
+                <FocalMarks
+                  g={g}
+                  values={[
+                    { x: fX, label: 'F' },
+                    { x: xOf(g, 2 * img.focalLength * 100), label: '2F' },
+                    ...(config.concave ? [{ x: cX, label: 'C', color: '#9d8cff' }] : [])
+                  ]}
+                />
+                <line x1={g.originX} y1={g.axisY - 8} x2={g.originX} y2={g.axisY + 8} stroke="#cfdcea" strokeWidth={2} />
+              </>
+            }
+          >
+            {/* Drag the object along the bench; drag its tip to change its height. */}
+            <DragX
+              spec={control('u', 'slider')}
+              params={params}
+              onChange={(key, value) => set(key, value)}
               x={g.originX}
+              y={g.axisY + 96}
+              length={g.originX - xOf(g, -60)}
+              mapping={{ toValue: (dx) => -dx / g.scale, invert: (u) => xOf(g, -u) }}
+              label="Object distance u — drag along the bench"
+            />
+            <DragY
+              spec={control('height', 'slider')}
+              params={params}
+              onChange={(key, value) => set(key, value)}
+              x={oX - 22}
               y={g.axisY}
-              radius={(rCm * g.scale) / 100}
-              concave={config.concave}
-              height={210}
-              label="Pole P"
+              height={g.axisY - yOf(g, 0.5)}
+              mapping={{ toValue: (dy) => -dy / g.scale, invert: (h) => yOf(g, h) }}
+              label="Object height h — drag the tip"
             />
-            <FocalMarks
-              g={g}
-              values={[
-                { x: fX, label: 'F' },
-                { x: xOf(g, 2 * img.focalLength * 100), label: '2F' },
-                ...(config.concave ? [{ x: cX, label: 'C', color: '#9d8cff' }] : [])
-              ]}
-            />
-            <line x1={g.originX} y1={g.axisY - 8} x2={g.originX} y2={g.axisY + 8} stroke="#cfdcea" strokeWidth={2} />
-          </>
+          </OpticsBench>
         }
-      >
-        {/* Drag the object along the bench; drag its tip to change its height. */}
-        <DragX
-          spec={control('u', 'slider')}
-          params={params}
-          onChange={(key, value) => set(key, value)}
-          x={g.originX}
-          y={g.axisY + 96}
-          length={g.originX - xOf(g, -60)}
-          mapping={{ toValue: (dx) => -dx / g.scale, invert: (u) => xOf(g, -u) }}
-          label="Object distance u — drag along the bench"
-        />
-        <DragY
-          spec={control('height', 'slider')}
-          params={params}
-          onChange={(key, value) => set(key, value)}
-          x={oX - 22}
-          y={g.axisY}
-          height={g.axisY - yOf(g, 0.5)}
-          mapping={{ toValue: (dy) => -dy / g.scale, invert: (h) => yOf(g, h) }}
-          label="Object height h — drag the tip"
-        />
-      </OpticsBench>
+        apparatus3d={{
+          title,
+          kind: 'mirror',
+          uCm,
+          vCm: img.imageDistance * 100,
+          heightCm: hCm,
+          isReal: img.isReal
+        }}
+      />
     );
   };
 }

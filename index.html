@@ -17,6 +17,14 @@
   </head>
   <body>
     <div id="root"></div>
+    <!--
+      Optional 3D apparatus view for the optics simulators. Loaded from CDN,
+      not the npm graph — the 3D view degrades to the existing 2D ray
+      diagram (see src/lib/apparatus3d.ts) if any of these fail to load.
+    -->
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
